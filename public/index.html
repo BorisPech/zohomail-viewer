@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZohoMail Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07070f; --s1:#0f0f1a; --s2:#161625; --s3:#1e1e30;
+  --border:#ffffff0d; --border2:#ffffff18;
+  --accent:#7c6ef7; --accent2:#f76e8a; --accent3:#4ecca3;
+  --text:#e4e4f0; --sub:#8888aa; --muted:#55556a;
+  --unread-bg:#7c6ef712; --unread-left:#7c6ef7;
+  --r8:8px; --r12:12px; --r16:16px; --r20:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column}
+
+/* ── GLOW BG ── */
+body::before{content:'';position:fixed;top:-300px;left:-200px;width:700px;height:700px;
+  background:radial-gradient(circle,#7c6ef710 0%,transparent 65%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;bottom:-300px;right:-200px;width:600px;height:600px;
+  background:radial-gradient(circle,#f76e8a0d 0%,transparent 65%);pointer-events:none;z-index:0}
+
+/* ── HEADER ── */
+.hdr{position:relative;z-index:10;height:60px;display:flex;align-items:center;gap:14px;
+  padding:0 20px;background:#07070fdd;backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border2);flex-shrink:0}
+.hdr-logo{width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.hdr-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;
+  background:linear-gradient(90deg,var(--text) 60%,var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-space{flex:1}
+.hdr-pill{padding:5px 14px;border-radius:20px;background:var(--s2);border:1px solid var(--border2);
+  font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:var(--accent3);
+  box-shadow:0 0 6px var(--accent3);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LAYOUT ── */
+.layout{flex:1;display:grid;grid-template-columns:230px 1fr;overflow:hidden;position:relative;z-index:1}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--s1);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.sb-head{padding:16px 14px 8px;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.folder{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;
+  border-left:3px solid transparent;transition:.18s;border-radius:0 var(--r8) var(--r8) 0;margin:1px 8px 1px 0}
+.folder:hover{background:var(--s2)}
+.folder.active{background:var(--unread-bg);border-left-color:var(--accent);color:var(--accent)}
+.folder .fi{font-size:15px;flex-shrink:0}
+.folder .fn{flex:1;font-size:13px}
+.folder .fc{font-size:11px;font-weight:700;background:var(--accent);color:#fff;
+  border-radius:20px;padding:1px 7px;min-width:20px;text-align:center}
+.folder .fc.zero{background:var(--s3);color:var(--muted)}
+.sb-div{height:1px;background:var(--border);margin:8px 14px}
+.sb-account{padding:12px 14px;margin-top:auto;border-top:1px solid var(--border)}
+.sb-acc-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.sb-acc-email{font-size:12px;color:var(--sub);word-break:break-all;line-height:1.4}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* toolbar */
+.toolbar{padding:12px 16px;display:flex;gap:10px;align-items:center;
+  border-bottom:1px solid var(--border);background:var(--s1);flex-shrink:0}
+.search{flex:1;position:relative}
+.search input{width:100%;padding:9px 14px 9px 36px;background:var(--s2);
+  border:1px solid var(--border);border-radius:var(--r12);color:var(--text);
+  font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:.2s}
+.search input:focus{border-color:var(--accent)}
+.search input::placeholder{color:var(--muted)}
+.search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
+.tbtn{padding:9px 14px;border-radius:var(--r12);background:var(--s2);border:1px solid var(--border);
+  color:var(--sub);font-size:12px;cursor:pointer;transition:.18s;white-space:nowrap;
+  font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.tbtn.spin .ic{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* stats */
+.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.stat{flex:1;padding:10px 16px;display:flex;align-items:center;gap:8px;background:var(--s1)}
+.stat+.stat{border-left:1px solid var(--border)}
+.stat-v{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+.stat-l{font-size:11px;color:var(--muted)}
+.sd{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* email list */
+.email-scroll{flex:1;overflow-y:auto}
+.email-item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:start;
+  padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;
+  position:relative}
+.email-item:hover{background:var(--s2)}
+.email-item.unread{background:var(--unread-bg);border-left:3px solid var(--unread-left)}
+.email-item.active{background:var(--s3)}
+.eav{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:14px;flex-shrink:0}
+.ebody{min-width:0}
+.efrom{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.email-item:not(.unread) .efrom{font-weight:400;color:var(--sub)}
+.esubj{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.email-item.unread .esubj{color:var(--text);font-weight:500}
+.email-item:not(.unread) .esubj{color:var(--muted)}
+.eprev{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emeta{text-align:right;flex-shrink:0}
+.etime{font-size:11px;color:var(--muted);margin-bottom:5px}
+.eunread-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block}
+
+/* pagination */
+.pagi{padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:6px;
+  border-top:1px solid var(--border);background:var(--s1);flex-shrink:0}
+.ppage{width:32px;height:32px;border-radius:var(--r8);background:var(--s2);
+  border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:12px;
+  display:flex;align-items:center;justify-content:center;transition:.15s}
+.ppage:hover,.ppage.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.ppage:disabled{opacity:.3;cursor:default}
+.pinfo{font-size:12px;color:var(--muted);padding:0 6px}
+
+/* empty */
+.empty{padding:60px 20px;text-align:center}
+.empty-ic{font-size:44px;margin-bottom:12px;opacity:.4}
+.empty-t{font-family:'Syne',sans-serif;font-size:18px;margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--muted)}
+
+/* skeleton */
+.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
+  background-size:200%;animation:shim 1.2s infinite;border-radius:6px}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-l{height:11px;margin-bottom:7px}
+
+/* ── DETAIL PANEL ── */
+.detail{position:fixed;top:60px;right:0;width:52vw;max-width:780px;
+  height:calc(100vh - 60px);background:var(--s1);border-left:1px solid var(--border2);
+  display:none;flex-direction:column;z-index:20;animation:si .22s ease}
+@keyframes si{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+
+.dh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+.dclose{width:30px;height:30px;border-radius:var(--r8);background:var(--s2);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);
+  font-size:16px;flex-shrink:0;transition:.15s}
+.dclose:hover{border-color:var(--accent2);color:var(--accent2)}
+.dsubj{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.ddate{font-size:11px;color:var(--muted)}
+
+.dmeta{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;background:var(--s2)}
+.dav{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.dfname{font-size:13px;font-weight:600;margin-bottom:2px}
+.dfemail{font-size:11px;color:var(--muted)}
+.dto{font-size:11px;color:var(--muted);margin-top:2px}
+
+.dacts{padding:10px 20px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.dact{padding:6px 12px;border-radius:var(--r8);background:var(--s2);border:1px solid var(--border);
+  color:var(--sub);font-size:12px;cursor:pointer;transition:.15s;font-family:'DM Sans',sans-serif}
+.dact:hover{border-color:var(--accent);color:var(--accent)}
+
+.dbody{flex:1;overflow-y:auto;padding:20px}
+.dbody-text{font-size:13px;line-height:1.9;color:#cccce0;white-space:pre-wrap;word-break:break-word}
+.dbody-text a{color:var(--accent)}
+
+/* loading overlay */
+#loader{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:14px;z-index:999}
+.spin-ring{width:44px;height:44px;border:3px solid var(--border2);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite}
+.load-t{font-size:13px;color:var(--sub)}
+
+/* toast */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--border2);
+  border-left:3px solid var(--accent3);padding:12px 18px;border-radius:var(--r12);
+  font-size:13px;color:var(--text);box-shadow:0 8px 24px #00000055;z-index:9999;display:none;animation:si .2s ease}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:700px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .detail{width:100vw}
+  .stats{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="spin-ring"></div>
+  <div class="load-t" id="load-t">កំពុងភ្ជាប់ទៅ Zoho Mail...</div>
+</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">✉️</div>
+  <div class="hdr-title">ZohoMail Viewer</div>
+  <div class="hdr-space"></div>
+  <div class="hdr-pill">
+    <span class="hdr-dot"></span>
+    <span id="hdr-email">Loading...</span>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-head">Folders</div>
+    <div id="folder-list"></div>
+    <div class="sb-div"></div>
+    <div class="sb-account">
+      <div class="sb-acc-label">Account</div>
+      <div class="sb-acc-email" id="sb-email">—</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search">
+        <span class="search-ic">🔍</span>
+        <input type="text" id="search" placeholder="ស្វែងរក messages..." oninput="doSearch(this.value)">
+      </div>
+      <button class="tbtn" onclick="refresh()"><span class="ic">↻</span> Refresh</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="sd" style="background:var(--accent)"></div>
+        <div><div class="stat-v" id="s-total">—</div><div class="stat-l">Total</div></div>
+      </div>
+      <div class="stat">
+        <div class="sd" style="background:var(--accent2)"></div>
+        <div><div class="stat-v" id="s-unread">—</div><div class="stat-l">Unread</div></div>
+      </div>
+      <div class="stat">
+        <div class="sd" style="background:var(--accent3)"></div>
+        <div><div class="stat-v" id="s-folder" style="font-size:14px">Inbox</div><div class="stat-l">Folder</div></div>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="email-scroll" id="email-list"></div>
+    <div class="pagi" id="pagi"></div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="detail" id="detail">
+  <div class="dh">
+    <button class="dclose" onclick="closeDetail()">✕</button>
+    <div>
+      <div class="dsubj" id="d-subj">—</div>
+      <div class="ddate" id="d-date"></div>
+    </div>
+  </div>
+  <div class="dmeta">
+    <div class="dav" id="d-av">?</div>
+    <div>
+      <div class="dfname" id="d-fname"></div>
+      <div class="dfemail" id="d-femail"></div>
+      <div class="dto" id="d-to"></div>
+    </div>
+  </div>
+  <div class="dacts">
+    <button class="dact">↩ Reply</button>
+    <button class="dact">→ Forward</button>
+    <button class="dact">⬇ Download</button>
+  </div>
+  <div class="dbody" id="d-body">
+    <div class="dbody-text" id="d-body-text"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── CONFIG ──
+// នេះគឺ relative URL — Vercel serverless function នឹង handle
+const API = '/api/emails';
+
+// ── STATE ──
+let emails = [], filtered = [], folders = [];
+let curFolder = 'Inbox', curPage = 1;
+const PER_PAGE = 30;
+const COLORS = ['#7c6ef7','#f76e8a','#4ecca3','#f9a825','#29b6f6','#ab47bc','#ef5350'];
+
+function col(s){ let h=0; for(let c of(s||'?'))h=(h*31+c.charCodeAt(0))%COLORS.length; return COLORS[h] }
+function ini(s){ return (s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?' }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
+
+function fmtTime(ms){
+  if(!ms)return '';
+  const d=new Date(Number(ms)), n=new Date();
+  if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(n-d<7*864e5) return d.toLocaleDateString([],{weekday:'short'});
+  return d.toLocaleDateString([],{month:'short',day:'numeric'});
+}
+function fmtFull(ms){
+  if(!ms)return '';
+  return new Date(Number(ms)).toLocaleString([],{dateStyle:'medium',timeStyle:'short'});
+}
+
+// ── LOAD DATA ──
+async function loadEmails(folder='Inbox', start=0){
+  setLoader(true, `Loading ${folder}...`);
+  curFolder = folder;
+  document.getElementById('s-folder').textContent = folder;
+  try {
+    const r = await fetch(`${API}?folder=${encodeURIComponent(folder)}&limit=200&start=${start}`);
+    const data = await r.json();
+    if(data.error) throw new Error(data.error);
+
+    emails = data.emails || [];
+    filtered = [...emails];
+    folders = data.folders || [];
+
+    // Header
+    const em = data.accountEmail || '';
+    document.getElementById('hdr-email').textContent = em;
+    document.getElementById('sb-email').textContent = em;
+
+    // Stats
+    const unread = emails.filter(m=>!m.isRead).length;
+    document.getElementById('s-total').textContent = emails.length;
+    document.getElementById('s-unread').textContent = unread;
+
+    // Folders
+    renderFolders();
+    curPage = 1;
+    renderList();
+    setLoader(false);
+  } catch(e){
+    setLoader(false);
+    toast('❌ Error: ' + e.message);
+    document.getElementById('email-list').innerHTML = `<div class="empty"><div class="empty-ic">⚠️</div><div class="empty-t">Failed to load</div><div class="empty-s">${esc(e.message)}</div></div>`;
+  }
+}
+
+// ── FOLDERS ──
+const FOLDER_ICONS = {inbox:'📥',sent:'📤',drafts:'📝',spam:'🚫',trash:'🗑️',starred:'⭐'};
+function renderFolders(){
+  const list = document.getElementById('folder-list');
+  // Default folders first
+  const defaults = ['Inbox','Sent','Drafts','Spam','Trash'];
+  const fmap = {};
+  folders.forEach(f => fmap[f.name.toLowerCase()] = f);
+
+  const items = defaults.map(n => {
+    const f = fmap[n.toLowerCase()] || {name:n, unread:0};
+    return f;
+  });
+  // Add any extra folders
+  folders.forEach(f => {
+    if(!defaults.map(d=>d.toLowerCase()).includes(f.name.toLowerCase())) items.push(f);
+  });
+
+  list.innerHTML = items.map(f => {
+    const ic = FOLDER_ICONS[f.name.toLowerCase()] || '📁';
+    const active = f.name.toLowerCase() === curFolder.toLowerCase() ? 'active' : '';
+    const cnt = f.unread || 0;
+    return `<div class="folder ${active}" onclick="switchFolder('${f.name}', this)">
+      <span class="fi">${ic}</span>
+      <span class="fn">${esc(f.name)}</span>
+      <span class="fc ${cnt===0?'zero':''}">${cnt}</span>
+    </div>`;
+  }).join('');
+}
+
+function switchFolder(name, el){
+  document.querySelectorAll('.folder').forEach(f=>f.classList.remove('active'));
+  el.classList.add('active');
+  closeDetail();
+  loadEmails(name);
+}
+
+// ── EMAIL LIST ──
+function renderList(){
+  const list = document.getElementById('email-list');
+  const q = document.getElementById('search').value.toLowerCase();
+  filtered = emails.filter(m =>
+    !q ||
+    (m.fromAddress||'').toLowerCase().includes(q) ||
+    (m.subject||'').toLowerCase().includes(q) ||
+    (m.summary||'').toLowerCase().includes(q)
+  );
+
+  const total = filtered.length;
+  const s = (curPage-1)*PER_PAGE;
+  const page = filtered.slice(s, s+PER_PAGE);
+
+  if(!page.length){
+    list.innerHTML = `<div class="empty"><div class="empty-ic">📭</div><div class="empty-t">គ្មាន message</div><div class="empty-s">${q?'ព្យាយាម keyword ផ្សេង':'Folder នេះទទេ'}</div></div>`;
+    document.getElementById('pagi').innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = page.map(m => {
+    const from = m.fromAddress || m.sender || '';
+    const name = from.includes('<') ? from.split('<')[0].trim() : from.split('@')[0];
+    const c = col(from);
+    const unread = !m.isRead;
+    return `<div class="email-item ${unread?'unread':''}" data-mid="${esc(m.messageId||m.mid||'')}" onclick="openEmail('${esc(m.messageId||m.mid||'')}', this)">
+      <div class="eav" style="background:${c}1a;color:${c}">${ini(name||from)}</div>
+      <div class="ebody">
+        <div class="efrom">${esc(name||from||'Unknown')}</div>
+        <div class="esubj">${esc(m.subject||'(No Subject)')}</div>
+        <div class="eprev">${esc(m.summary||m.snippet||'')}</div>
+      </div>
+      <div class="emeta">
+        <div class="etime">${fmtTime(m.receivedTime||m.sentDateInGMT)}</div>
+        ${unread?'<span class="eunread-dot"></span>':''}
+      </div>
+    </div>`;
+  }).join('');
+
+  renderPagi(total);
+}
+
+function renderPagi(total){
+  const p = document.getElementById('pagi');
+  const pages = Math.ceil(total/PER_PAGE);
+  if(pages<=1){p.innerHTML='';return}
+  let h = `<button class="ppage" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=Math.min(pages,8);i++)
+    h += `<button class="ppage ${i===curPage?'on':''}" onclick="goPage(${i})">${i}</button>`;
+  if(pages>8) h += `<span class="pinfo">... ${pages}</span>`;
+  h += `<button class="ppage" onclick="goPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
+  h += `<span class="pinfo">${total} messages</span>`;
+  p.innerHTML = h;
+}
+
+function goPage(n){
+  const pages = Math.ceil(filtered.length/PER_PAGE);
+  if(n<1||n>pages)return;
+  curPage=n; renderList();
+  document.querySelector('.email-scroll').scrollTop=0;
+}
+
+function doSearch(v){ curPage=1; renderList(); }
+function refresh(){ loadEmails(curFolder); }
+
+// ── OPEN EMAIL ──
+async function openEmail(mid, el){
+  if(!mid)return;
+  document.querySelectorAll('.email-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  el.classList.remove('unread');
+
+  const det = document.getElementById('detail');
+  det.style.display='flex';
+
+  document.getElementById('d-subj').textContent = 'Loading...';
+  document.getElementById('d-body-text').innerHTML = `
+    <div class="sk sk-l" style="width:90%"></div>
+    <div class="sk sk-l" style="width:75%"></div>
+    <div class="sk sk-l" style="width:82%"></div>
+    <div class="sk sk-l" style="width:60%;margin-top:14px"></div>
+    <div class="sk sk-l" style="width:78%"></div>
+    <div class="sk sk-l" style="width:70%"></div>`;
+
+  try {
+    const r = await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
+    const data = await r.json();
+    const m = data.message;
+    if(!m) throw new Error('No message data');
+
+    const from = m.fromAddress || '';
+    const name = from.includes('<') ? from.split('<')[0].trim() : from.split('@')[0];
+    const c = col(from);
+
+    document.getElementById('d-subj').textContent = m.subject || '(No Subject)';
+    document.getElementById('d-date').textContent = fmtFull(m.receivedTime||m.sentDateInGMT);
+    document.getElementById('d-av').textContent = ini(name||from);
+    document.getElementById('d-av').style.cssText = `background:${c}1a;color:${c};width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0`;
+    document.getElementById('d-fname').textContent = name || from;
+    document.getElementById('d-femail').textContent = from;
+    document.getElementById('d-to').textContent = 'To: ' + (m.toAddress||'');
+
+    const bodyEl = document.getElementById('d-body-text');
+    if(m.htmlBody){
+      const frame = document.createElement('iframe');
+      frame.style.cssText = 'width:100%;border:none;min-height:400px;background:#fff;border-radius:10px';
+      frame.srcdoc = m.htmlBody;
+      bodyEl.innerHTML = '';
+      bodyEl.appendChild(frame);
+      frame.onload = () => {
+        try{ frame.style.height = frame.contentDocument.body.scrollHeight + 40 + 'px'; }catch(e){}
+      };
+    } else {
+      bodyEl.textContent = m.content || m.body || m.summary || '(Empty)';
+    }
+  } catch(e){
+    document.getElementById('d-body-text').textContent = 'Failed to load: ' + e.message;
+  }
+}
+
+function closeDetail(){
+  document.getElementById('detail').style.display='none';
+  document.querySelectorAll('.email-item').forEach(e=>e.classList.remove('active'));
+}
+
+// ── HELPERS ──
+function setLoader(show, msg=''){
+  const l = document.getElementById('loader');
+  l.style.display = show ? 'flex' : 'none';
+  if(msg) document.getElementById('load-t').textContent = msg;
+}
+
+function toast(msg, dur=3500){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none', dur);
+}
+
+// ── START ──
+loadEmails('Inbox');
+</script>
+</body>
+</html>
