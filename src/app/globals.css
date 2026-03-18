@@ -6,6 +6,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -36,12 +37,16 @@ html, body {
   from { background-color: rgba(99,102,241,0.18); }
   to   { background-color: rgba(99,102,241,0.04); }
 }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 .animate-slide-right { animation: slide-right .22s cubic-bezier(.16,1,.3,1); }
 .animate-fade-up     { animation: fade-up .2s ease; }
 .animate-pop         { animation: pop .25s ease; }
 .animate-breathe     { animation: breathe 2.5s ease-in-out infinite; }
 .animate-new-glow    { animation: new-glow .8s ease forwards; }
+.animate-spin-slow   { animation: spin .65s linear infinite; }
 
 .skeleton {
   background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);

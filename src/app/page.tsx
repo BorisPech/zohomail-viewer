@@ -4,13 +4,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Sidebar      from '@/components/Sidebar'
 import EmailRow     from '@/components/EmailRow'
 import DetailDrawer from '@/components/DetailDrawer'
-import { timeAgo, FOLDER_ORDER, FOLDER_ICONS } from '@/lib/utils'
+import { timeAgo, FOLDER_ORDER } from '@/lib/utils'
 import type { ZohoEmail, ZohoFolder, EmailsResponse, CountsResponse, MessageResponse } from '@/types'
 
 const POLL_MS = 15_000
 
 export default function Page() {
-  /* ── data ── */
   const [emails,         setEmails]         = useState<ZohoEmail[]>([])
   const [folders,        setFolders]        = useState<ZohoFolder[]>([])
   const [activeFolder,   setActiveFolder]   = useState('')
@@ -18,8 +17,6 @@ export default function Page() {
   const [totalCount,     setTotalCount]     = useState(0)
   const [unreadCount,    setUnreadCount]    = useState(0)
   const [lastSync,       setLastSync]       = useState(0)
-
-  /* ── ui ── */
   const [query,          setQuery]          = useState('')
   const [loading,        setLoading]        = useState(true)
   const [loadMsg,        setLoadMsg]        = useState('Loading mailbox...')
@@ -30,17 +27,23 @@ export default function Page() {
   const [newIds,         setNewIds]         = useState(new Set<string>())
   const [toast,          setToast]          = useState<{ msg: string; err: boolean } | null>(null)
 
-  const knownIds  = useRef(new Set<string>())
-  const pollTimer = useRef<ReturnType<typeof setInterval>>()
-  const pending   = useRef(0)
+  const knownIds       = useRef(new Set<string>())
+  const pollTimer      = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pending        = useRef(0)
+  const activeFolderRef    = useRef('')
+  const activeFolderIdRef  = useRef('')
+  const emailsRef          = useRef<ZohoEmail[]>([])
 
-  /* ── helpers ── */
+  // Keep refs in sync
+  useEffect(() => { activeFolderRef.current   = activeFolder   }, [activeFolder])
+  useEffect(() => { activeFolderIdRef.current = activeFolderId }, [activeFolderId])
+  useEffect(() => { emailsRef.current         = emails         }, [emails])
+
   const showToast = useCallback((msg: string, err = false) => {
     setToast({ msg, err })
     setTimeout(() => setToast(null), 4000)
   }, [])
 
-  /* ── load ── */
   const load = useCallback(async (folder = '', silent = false) => {
     if (!silent) {
       setLoading(true)
@@ -51,7 +54,9 @@ export default function Page() {
       setNewIds(new Set())
     }
     try {
-      const url  = folder ? `/api/emails?folder=${encodeURIComponent(folder)}&limit=200` : '/api/emails?limit=200'
+      const url  = folder
+        ? `/api/emails?folder=${encodeURIComponent(folder)}&limit=200`
+        : '/api/emails?limit=200'
       const res  = await fetch(url)
       const data = await res.json() as EmailsResponse
       if (data.error) throw new Error(data.error)
@@ -73,12 +78,15 @@ export default function Page() {
     }
   }, [showToast])
 
-  /* ── poll ── */
+  // Poll — uses refs to avoid stale closure without needing poll in deps
   const poll = useCallback(async () => {
-    if (syncing) return
+    const folderId = activeFolderIdRef.current
+    const folder   = activeFolderRef.current
+    const curEmails = emailsRef.current
+
     setSyncing(true)
     try {
-      const qs   = activeFolderId ? `?counts=1&activeId=${encodeURIComponent(activeFolderId)}` : '?counts=1'
+      const qs   = folderId ? `?counts=1&activeId=${encodeURIComponent(folderId)}` : '?counts=1'
       const res  = await fetch(`/api/emails${qs}`)
       const data = await res.json() as CountsResponse
       if (data.error) throw new Error(data.error)
@@ -94,16 +102,17 @@ export default function Page() {
         setNewIds(prev => new Set([...prev, ...brandNew.map(b => b.id)]))
 
         if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-          const n = new Notification(`${brandNew.length} new email${brandNew.length > 1 ? 's' : ''} — Zoho Mail`, {
-            body: `New messages in ${activeFolder}`,
-          })
+          const n = new Notification(
+            `${brandNew.length} new email${brandNew.length > 1 ? 's' : ''} — Zoho Mail`,
+            { body: `New messages in ${folder}` }
+          )
           setTimeout(() => n.close(), 5000)
           n.onclick = () => { window.focus(); n.close() }
         }
       }
 
-      setUnreadCount(data.activeUnread ?? emails.filter(m => m.status === '0').length)
-      setTotalCount(data.activeTotal  ?? emails.length)
+      setUnreadCount(data.activeUnread ?? curEmails.filter(m => m.status === '0').length)
+      setTotalCount(data.activeTotal  ?? curEmails.length)
 
       if (Array.isArray(data.folders)) {
         setFolders(prev => prev.map(f => {
@@ -111,29 +120,37 @@ export default function Page() {
           return u ? { ...f, unread: u.unread } : f
         }))
       }
-    } catch { /* silent */ }
-    finally { setSyncing(false) }
-  }, [syncing, activeFolderId, activeFolder, emails])
+    } catch {
+      // silent poll failure — no toast
+    } finally {
+      setSyncing(false)
+    }
+  }, []) // empty deps — uses refs
 
+  // Start polling
   useEffect(() => {
-    clearInterval(pollTimer.current)
+    if (pollTimer.current) clearInterval(pollTimer.current)
     pollTimer.current = setInterval(poll, POLL_MS)
-    return () => clearInterval(pollTimer.current)
+    return () => { if (pollTimer.current) clearInterval(pollTimer.current) }
   }, [poll])
 
-  /* ── open email ── */
   const openEmail = useCallback(async (email: ZohoEmail) => {
     const wasUnread = email.status === '0'
     const mid       = email.messageId || email.mid || ''
 
-    setEmails(prev => prev.map(m => (m.messageId||m.mid) === mid ? { ...m, status: '1' } : m))
+    setEmails(prev => prev.map(m =>
+      (m.messageId || m.mid) === mid ? { ...m, status: '1' } : m
+    ))
     if (wasUnread) setUnreadCount(p => Math.max(0, p - 1))
     setSelected({ ...email, status: '1' })
     setBodyLoading(true)
     if (mid) knownIds.current.add(mid)
 
     if (wasUnread && mid) {
-      fetch(`/api/markread?msgId=${encodeURIComponent(mid)}&folderId=${encodeURIComponent(activeFolderId||email.folderId||'')}`, { method: 'POST' }).catch(() => {})
+      const fid = activeFolderIdRef.current || email.folderId || ''
+      fetch(`/api/markread?msgId=${encodeURIComponent(mid)}&folderId=${encodeURIComponent(fid)}`, {
+        method: 'POST',
+      }).catch(() => {})
     }
 
     if (!mid) { setBodyLoading(false); return }
@@ -143,56 +160,69 @@ export default function Page() {
       const data = await res.json() as MessageResponse
       if (data.error) throw new Error(data.error)
       const msg  = data.message
-      setSelected(prev => prev ? { ...prev, htmlBody: msg.htmlBody, content: msg.content, body: msg.body } : null)
+      setSelected(prev => prev ? {
+        ...prev,
+        htmlBody: msg.htmlBody,
+        content:  msg.content,
+        body:     msg.body,
+      } : null)
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Failed to load email', true)
     } finally {
       setBodyLoading(false)
     }
-  }, [activeFolderId, showToast])
+  }, [showToast])
 
-  /* ── init ── */
+  // Init
   useEffect(() => {
     load('')
     if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
       Notification.requestPermission().catch(() => {})
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  /* ── sync time refresh every 30s ── */
+  // Sync time ticker
   useEffect(() => {
-    const t = setInterval(() => setLastSync(p => p), 30_000)
+    const t = setInterval(() => setLastSync(p => p ? p : p), 30_000)
     return () => clearInterval(t)
   }, [])
 
-  /* ── filtered ── */
+  // Filtered list
   const filtered = query
     ? emails.filter(m => {
-        const q   = query.toLowerCase()
-        const subj = (() => { try { const el = document.createElement('textarea'); el.innerHTML = m.subject||''; return el.value } catch { return m.subject||'' } })()
-        return subj.toLowerCase().includes(q) ||
-          (m.fromAddress||m.sender||'').toLowerCase().includes(q) ||
-          (m.summary||'').toLowerCase().includes(q)
+        const q    = query.toLowerCase()
+        let subj   = m.subject || ''
+        if (typeof document !== 'undefined') {
+          const el = document.createElement('textarea')
+          el.innerHTML = m.subject || ''
+          subj = el.value
+        }
+        return (
+          subj.toLowerCase().includes(q) ||
+          (m.fromAddress || m.sender || '').toLowerCase().includes(q) ||
+          (m.summary || '').toLowerCase().includes(q)
+        )
       })
     : emails
 
-  /* ── sorted folders ── */
+  // Sorted folders for sidebar
   const folderMap: Record<string, ZohoFolder> = {}
   folders.forEach(f => { folderMap[f.name] = f })
-  const sortedFolders = [
-    ...FOLDER_ORDER.filter(n => folderMap[n]).map(n => folderMap[n]),
+  const sortedFolders: ZohoFolder[] = [
+    ...FOLDER_ORDER.filter(n => folderMap[n]).map(n => folderMap[n]!),
     ...folders.filter(f => !FOLDER_ORDER.includes(f.name)),
   ]
 
   return (
     <div className="flex flex-col h-screen bg-zinc-950">
 
-      {/* ── TOPBAR ── */}
+      {/* TOPBAR */}
       <header className="h-12 flex items-center gap-3 px-4 bg-zinc-900 border-b border-zinc-800 z-50 shrink-0">
-        {/* Brand */}
         <div className="flex items-center gap-2">
           <div className="w-[26px] h-[26px] rounded-[6px] bg-indigo-500 flex items-center justify-center
-            text-white text-[13px] font-bold shadow-[0_0_0_1px_rgba(99,102,241,.4),0_2px_8px_rgba(99,102,241,.2)] shrink-0">
+            text-white text-[13px] font-bold
+            shadow-[0_0_0_1px_rgba(99,102,241,.4),0_2px_8px_rgba(99,102,241,.2)] shrink-0">
             M
           </div>
           <span className="text-[14px] font-semibold tracking-tight">Zoho Mail</span>
@@ -200,50 +230,49 @@ export default function Page() {
 
         <div className="flex-1" />
 
-        {/* New mail */}
         {newCount > 0 && (
           <button
             onClick={() => { setNewCount(0); pending.current = 0; setNewIds(new Set()); load(activeFolder) }}
-            className="flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/35
-              bg-indigo-500/12 text-indigo-300 text-[12px] cursor-pointer animate-pop
-              hover:bg-indigo-500/20 transition-colors">
+            className="flex items-center gap-2 px-3 py-1 rounded-full
+              border border-indigo-500/35 bg-indigo-500/[0.12] text-indigo-300 text-[12px]
+              cursor-pointer animate-pop hover:bg-indigo-500/20 transition-colors"
+          >
             <span>✦</span>
             <span>{newCount} new message{newCount > 1 ? 's' : ''}</span>
           </button>
         )}
 
-        {/* Live pill */}
         <div className={`flex items-center gap-[5px] px-[10px] py-1 rounded-full border text-[11px] transition-all
           ${syncing
-            ? 'border-indigo-500/25 bg-indigo-500/7 text-indigo-400'
-            : 'border-emerald-500/20 bg-emerald-500/6 text-emerald-400'}`}>
+            ? 'border-indigo-500/25 bg-indigo-500/[0.07] text-indigo-400'
+            : 'border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-400'}`}>
           <span className={`w-[5px] h-[5px] rounded-full ${
             syncing
-              ? 'bg-indigo-400 animate-spin'
+              ? 'bg-indigo-400 animate-spin-slow'
               : 'bg-emerald-400 shadow-[0_0_0_2px_rgba(34,197,94,.2)] animate-breathe'
           }`} />
           <span>{syncing ? 'Syncing...' : 'Live'}</span>
         </div>
 
         <button
-          onClick={() => { setNewCount(0); load(activeFolder) }}
-          className="px-3 py-[6px] rounded-[10px] bg-zinc-800 border border-zinc-700 text-zinc-400 text-[12px]
-            hover:border-zinc-600 hover:text-zinc-200 transition-colors cursor-pointer">
+          onClick={() => load(activeFolder)}
+          className="px-3 py-[6px] rounded-[10px] bg-zinc-800 border border-zinc-700
+            text-zinc-400 text-[12px] hover:border-zinc-600 hover:text-zinc-200
+            transition-colors cursor-pointer"
+        >
           ↻
         </button>
       </header>
 
-      {/* ── BODY GRID ── */}
-      <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: '220px 1fr' }}>
+      {/* BODY */}
+      <div className="flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: '220px 1fr' }}>
 
-        {/* ── SIDEBAR ── */}
         <Sidebar
           folders={sortedFolders}
           activeFolder={activeFolder}
           onSelect={name => { setNewCount(0); setNewIds(new Set()); load(name) }}
         />
 
-        {/* ── MAIN ── */}
         <main className="flex flex-col overflow-hidden bg-zinc-950">
 
           {/* Toolbar */}
@@ -257,17 +286,19 @@ export default function Page() {
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search sender, subject or content..."
                 className="flex-1 bg-transparent border-none outline-none text-[13px] text-zinc-200
-                  placeholder:text-zinc-600 font-sans"
+                  placeholder:text-zinc-600"
               />
               {query && (
-                <button onClick={() => setQuery('')} className="text-zinc-600 hover:text-zinc-400 text-[11px] cursor-pointer">✕</button>
+                <button onClick={() => setQuery('')}
+                  className="text-zinc-600 hover:text-zinc-400 text-[11px] cursor-pointer">✕</button>
               )}
             </div>
             <button
               onClick={() => load(activeFolder)}
               className="flex items-center gap-1 px-3 py-[7px] rounded-[10px] bg-zinc-800
                 border border-zinc-700/60 text-zinc-400 text-[12px] font-medium
-                hover:border-zinc-600 hover:text-zinc-200 transition-colors cursor-pointer">
+                hover:border-zinc-600 hover:text-zinc-200 transition-colors cursor-pointer"
+            >
               ↻ Refresh
             </button>
           </div>
@@ -275,8 +306,8 @@ export default function Page() {
           {/* Stats */}
           <div className="flex border-b border-zinc-800 bg-zinc-900 shrink-0">
             {[
-              { icon: '✉', bg: 'bg-indigo-500/10',  color: 'text-indigo-400',  val: totalCount,               lbl: 'Total'    },
-              { icon: '◉', bg: 'bg-red-500/10',      color: 'text-red-400',     val: unreadCount,              lbl: 'Unread'   },
+              { icon: '✉', bg: 'bg-indigo-500/10',  color: 'text-indigo-400',  val: String(totalCount),  lbl: 'Total',     sm: false },
+              { icon: '◉', bg: 'bg-red-500/10',      color: 'text-red-400',     val: String(unreadCount), lbl: 'Unread',    sm: false },
               { icon: '⏱', bg: 'bg-emerald-500/10',  color: 'text-emerald-400', val: lastSync ? timeAgo(lastSync) : '—', lbl: 'Last sync', sm: true },
             ].map(({ icon, bg, color, val, lbl, sm }) => (
               <div key={lbl} className="flex-1 px-4 py-[10px] flex items-center gap-[10px] [&+&]:border-l [&+&]:border-zinc-800">
@@ -284,7 +315,9 @@ export default function Page() {
                   {icon}
                 </div>
                 <div>
-                  <div className={`font-bold leading-none tracking-tight ${sm ? 'text-[12px] pt-1' : 'text-[20px]'}`}>{val}</div>
+                  <div className={`font-bold leading-none tracking-tight ${sm ? 'text-[12px] pt-1' : 'text-[20px]'}`}>
+                    {val}
+                  </div>
                   <div className="text-[11px] text-zinc-600 mt-[2px]">{lbl}</div>
                 </div>
               </div>
@@ -303,7 +336,7 @@ export default function Page() {
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-40 gap-3">
-                <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-indigo-500 animate-spin" />
+                <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-indigo-500 animate-spin-slow" />
                 <span className="text-[13px] text-zinc-500">{loadMsg}</span>
               </div>
             ) : filtered.length === 0 ? (
@@ -316,13 +349,13 @@ export default function Page() {
                 <p className="text-[13px] text-zinc-600">{query ? 'Try different keywords' : 'No messages here'}</p>
               </div>
             ) : (
-              filtered.map((email) => {
+              filtered.map(email => {
                 const id = email.messageId || email.mid || ''
                 return (
                   <EmailRow
                     key={id}
                     email={email}
-                    selected={!!(selected && (selected.messageId||selected.mid) === id)}
+                    selected={!!(selected && (selected.messageId || selected.mid) === id)}
                     isNew={newIds.has(id)}
                     onClick={() => openEmail(email)}
                   />
@@ -330,10 +363,10 @@ export default function Page() {
               })
             )}
           </div>
+
         </main>
       </div>
 
-      {/* ── DETAIL DRAWER ── */}
       {selected && (
         <DetailDrawer
           email={selected}
@@ -342,7 +375,6 @@ export default function Page() {
         />
       )}
 
-      {/* ── TOAST ── */}
       {toast && (
         <div className={`fixed bottom-[18px] right-[18px] z-[999] px-4 py-3 rounded-[10px]
           bg-zinc-800 border border-zinc-700 text-[12px] text-zinc-100
