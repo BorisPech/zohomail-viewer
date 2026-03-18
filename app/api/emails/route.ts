@@ -123,7 +123,10 @@ export async function GET(request: NextRequest) {
         )
       : null
 
-    if (!target) {
+    // Check if "All emails" was requested
+    const isAllEmails = reqFolder?.toLowerCase() === "all emails"
+
+    if (!target && !isAllEmails) {
       for (const name of PRIORITY) {
         const f = folders.find((x: { name: string }) => x.name === name)
         if (f) {
@@ -134,23 +137,48 @@ export async function GET(request: NextRequest) {
       if (!target) target = folders[0]
     }
 
-    if (!target) {
+    if (!target && !isAllEmails) {
       return NextResponse.json({ error: "No folder", folders }, { status: 400 })
     }
 
-    // Fetch emails
-    const msgData = await zFetch(
-      `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folderId=${target.id}&limit=200&start=${start}&sortorder=false`,
-      token
-    )
-    const emails = Array.isArray(msgData?.data) ? msgData.data : []
+    let emails: unknown[] = []
+    let realUnread = 0
 
-    // Calculate real unread count
-    const realUnread = emails.filter((m: { status: string }) => m.status === "0").length
+    if (isAllEmails) {
+      // Fetch emails from all folders
+      for (const folder of folders) {
+        try {
+          const msgData = await zFetch(
+            `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folderId=${folder.id}&limit=100&start=0&sortorder=false`,
+            token
+          )
+          const folderEmails = Array.isArray(msgData?.data) ? msgData.data : []
+          emails = emails.concat(folderEmails)
+        } catch {
+          // Skip folders that fail to fetch
+        }
+      }
+      // Sort by received time descending
+      emails.sort((a: unknown, b: unknown) => {
+        const aTime = (a as { receivedTime?: number }).receivedTime || 0
+        const bTime = (b as { receivedTime?: number }).receivedTime || 0
+        return bTime - aTime
+      })
+      realUnread = emails.filter((m: unknown) => (m as { status: string }).status === "0").length
+    } else {
+      // Fetch emails from single folder
+      const msgData = await zFetch(
+        `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folderId=${target?.id}&limit=200&start=${start}&sortorder=false`,
+        token
+      )
+      emails = Array.isArray(msgData?.data) ? msgData.data : []
+      realUnread = emails.filter((m: unknown) => (m as { status: string }).status === "0").length
+    }
 
     // Update folder unread counts
     const updatedFolders = folders.map((f: { id: string; unread: number }) => {
-      if (f.id === target.id) return { ...f, unread: realUnread }
+      if (isAllEmails) return f
+      if (target && f.id === target.id) return { ...f, unread: realUnread }
       return f
     })
 
@@ -158,8 +186,8 @@ export async function GET(request: NextRequest) {
       emails,
       folders: updatedFolders,
       accountEmail,
-      activeFolder: target.name,
-      activeFolderId: target.id,
+      activeFolder: isAllEmails ? "All emails" : target?.name,
+      activeFolderId: isAllEmails ? "all-emails" : target?.id,
       total: emails.length,
       unread: realUnread,
       timestamp: Date.now(),

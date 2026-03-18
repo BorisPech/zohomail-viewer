@@ -24,7 +24,7 @@ export default function MailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showNotificationToast, setShowNotificationToast] = useState(true)
   const previousEmailsRef = useRef<Email[]>([])
-  const notificationTimeoutRef = useRef<NodeJS.Timeout>()
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | undefined>()
 
   const apiUrl = activeFolder
     ? `/api/emails?folder=${encodeURIComponent(activeFolder)}&limit=200`
