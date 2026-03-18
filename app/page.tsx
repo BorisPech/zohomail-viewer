@@ -8,6 +8,7 @@ import { EmailList } from "@/components/email/email-list"
 import { EmailDetail } from "@/components/email/email-detail"
 import { StatsBar } from "@/components/email/stats-bar"
 import { LoadingScreen } from "@/components/email/loading-screen"
+import { NotificationToast } from "@/components/email/notification-toast"
 import type { Email, EmailsResponse } from "@/lib/types"
 
 const POLL_INTERVAL = 30000
@@ -21,7 +22,9 @@ export default function MailPage() {
   const [newEmailIds, setNewEmailIds] = useState<Set<string>>(new Set())
   const [pendingNewEmails, setPendingNewEmails] = useState<Email[]>([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showNotificationToast, setShowNotificationToast] = useState(true)
   const previousEmailsRef = useRef<Email[]>([])
+  const notificationTimeoutRef = useRef<NodeJS.Timeout>()
 
   const apiUrl = activeFolder
     ? `/api/emails?folder=${encodeURIComponent(activeFolder)}&limit=200`
@@ -47,6 +50,12 @@ export default function MailPage() {
           )
           if (brandNew.length > 0) {
             setPendingNewEmails(brandNew)
+            // Show in-app notification toast
+            setShowNotificationToast(true)
+            // Reset timeout
+            if (notificationTimeoutRef.current) {
+              clearTimeout(notificationTimeoutRef.current)
+            }
             // Try to show notification (may fail on mobile browsers)
             try {
               if (
@@ -130,6 +139,17 @@ export default function MailPage() {
     }, 1000)
   }, [pendingNewEmails, mutate])
 
+  const handleDismissNotification = useCallback(() => {
+    setShowNotificationToast(false)
+    // Reset after 10 seconds of inactivity if new messages arrive
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current)
+    }
+    notificationTimeoutRef.current = setTimeout(() => {
+      setShowNotificationToast(true)
+    }, 10000)
+  }, [])
+
   const handleSelectEmail = useCallback((email: Email) => {
     setSelectedEmail(email)
   }, [])
@@ -187,6 +207,14 @@ export default function MailPage() {
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
+      {/* Notification Toast */}
+      <NotificationToast
+        messages={pendingNewEmails}
+        isVisible={showNotificationToast && pendingNewEmails.length > 0}
+        onDismiss={handleDismissNotification}
+        onLoadNew={handleLoadNew}
+      />
+
       {/* Header */}
       <Header
         syncing={isValidating}
