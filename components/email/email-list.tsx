@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import type { Email } from "@/lib/types"
+import { Paperclip } from "lucide-react"
 
 interface EmailListProps {
   emails: Email[]
@@ -60,6 +61,7 @@ function formatTime(ms: number) {
 }
 
 function decodeHtml(html: string) {
+  if (typeof document === "undefined") return html || ""
   const textarea = document.createElement("textarea")
   textarea.innerHTML = html || ""
   return textarea.value
@@ -69,9 +71,9 @@ export function EmailList({ emails, selectedId, onSelectEmail, isNew }: EmailLis
   if (emails.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center p-8 text-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-secondary">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-secondary">
           <svg
-            className="h-6 w-6 text-muted-foreground"
+            className="h-7 w-7 text-muted-foreground"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -84,8 +86,8 @@ export function EmailList({ emails, selectedId, onSelectEmail, isNew }: EmailLis
             />
           </svg>
         </div>
-        <p className="font-semibold">No emails found</p>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-lg font-semibold">No emails found</p>
+        <p className="mt-1 max-w-xs text-sm text-muted-foreground">
           This folder is empty or no emails match your search.
         </p>
       </div>
@@ -102,28 +104,29 @@ export function EmailList({ emails, selectedId, onSelectEmail, isNew }: EmailLis
         const color = getColor(senderName)
         const initials = getInitials(senderName)
         const isNewEmail = isNew?.(id)
+        const hasAttachment = email.hasAttachment
 
         return (
           <div
             key={id}
             onClick={() => onSelectEmail(email)}
             className={cn(
-              "relative flex cursor-pointer gap-3 border-b border-border px-4 py-3 transition-colors",
-              isSelected && "bg-secondary",
-              isUnread && !isSelected && "bg-primary/[0.03]",
-              !isSelected && !isUnread && "hover:bg-secondary/50",
+              "relative flex cursor-pointer gap-3 border-b border-border px-3 py-3 transition-all active:scale-[0.995] sm:gap-4 sm:px-4 sm:py-4",
+              isSelected && "bg-primary/5",
+              isUnread && !isSelected && "bg-secondary/50",
+              !isSelected && !isUnread && "hover:bg-secondary/30",
               isNewEmail && "animate-highlight"
             )}
           >
             {/* Unread indicator */}
             {isUnread && (
-              <div className="absolute left-0 top-0 h-full w-0.5 bg-primary" />
+              <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-primary to-primary/50" />
             )}
 
             {/* Avatar */}
             <div
               className={cn(
-                "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-xs font-semibold",
+                "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold sm:h-11 sm:w-11 sm:text-sm",
                 color.bg,
                 color.text
               )}
@@ -142,9 +145,14 @@ export function EmailList({ emails, selectedId, onSelectEmail, isNew }: EmailLis
                 >
                   {senderName}
                 </p>
-                <span className="flex-shrink-0 text-[11px] text-muted-foreground">
-                  {formatTime(email.receivedTime || email.sentDateInGMT || 0)}
-                </span>
+                <div className="flex flex-shrink-0 items-center gap-1.5">
+                  {hasAttachment && (
+                    <Paperclip className="h-3 w-3 text-muted-foreground" />
+                  )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {formatTime(email.receivedTime || email.sentDateInGMT || 0)}
+                  </span>
+                </div>
               </div>
               <p
                 className={cn(
@@ -154,17 +162,17 @@ export function EmailList({ emails, selectedId, onSelectEmail, isNew }: EmailLis
               >
                 {decodeHtml(email.subject || "(No Subject)")}
               </p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {email.summary?.slice(0, 100) || ""}
+              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground sm:line-clamp-1">
+                {email.summary?.slice(0, 120) || ""}
               </p>
             </div>
 
             {/* Unread dot */}
-            <div className="flex flex-col items-end gap-1 pt-1">
-              {isUnread && (
-                <div className="h-2 w-2 rounded-full bg-primary" />
-              )}
-            </div>
+            {isUnread && (
+              <div className="flex flex-shrink-0 items-start pt-1.5">
+                <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-sm shadow-primary/50" />
+              </div>
+            )}
           </div>
         )
       })}
