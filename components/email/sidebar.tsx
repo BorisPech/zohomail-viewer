@@ -16,10 +16,12 @@ import {
   FolderIcon,
   Search,
   X,
+  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const FOLDER_ICONS: Record<string, React.ReactNode> = {
+  "all emails": <Mail className="h-4 w-4" />,
   inbox: <Inbox className="h-4 w-4" />,
   sent: <Send className="h-4 w-4" />,
   drafts: <FileEdit className="h-4 w-4" />,
@@ -103,6 +105,29 @@ export function Sidebar({
           Folders
         </p>
         <nav className="flex flex-col gap-0.5">
+          {/* All Emails Button */}
+          <button
+            onClick={() => onFolderClick("All emails")}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all active:scale-[0.98]",
+              activeFolder.toLowerCase() === "all emails"
+                ? "bg-primary/10 text-primary shadow-sm"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            )}
+          >
+            <span
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-lg",
+                activeFolder.toLowerCase() === "all emails"
+                  ? "bg-primary/15"
+                  : "bg-secondary"
+              )}
+            >
+              {getFolderIcon("all emails")}
+            </span>
+            <span className="flex-1 truncate font-medium">All emails</span>
+          </button>
+
           {folders.map((folder) => (
             <button
               key={folder.id}
