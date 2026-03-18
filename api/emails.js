@@ -1,5 +1,4 @@
-// api/emails.js — Vercel Serverless Function
-// ទាញ emails ពី Zoho Mail ដោយ auto-refresh token
+// api/emails.js — Vercel Serverless Function (Fixed)
 
 const CLIENT_ID     = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
@@ -17,56 +16,88 @@ async function getAccessToken() {
     }),
   });
   const data = await res.json();
-  if (!data.access_token) throw new Error('Cannot refresh token: ' + JSON.stringify(data));
+  if (!data.access_token) {
+    throw new Error('Token refresh failed: ' + JSON.stringify(data));
+  }
   return data.access_token;
 }
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    if (!CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+      return res.status(500).json({
+        error: 'Missing environment variables',
+        has_id: !!CLIENT_ID, has_secret: !!CLIENT_SECRET, has_token: !!REFRESH_TOKEN,
+      });
+    }
+
     const token = await getAccessToken();
 
-    // 1. Get account ID
+    // 1. Get accounts
     const accRes = await fetch('https://mail.zoho.com/api/accounts', {
       headers: { Authorization: `Zoho-oauthtoken ${token}` },
     });
-    const accData = await accRes.json();
-    if (!accData.data?.length) return res.status(400).json({ error: 'No account found' });
+    const accRaw = await accRes.text();
+    let accData;
+    try { accData = JSON.parse(accRaw); } catch(e) {
+      return res.status(500).json({ error: 'Account parse error', raw: accRaw.slice(0,500) });
+    }
 
-    const accountId = accData.data[0].accountId;
-    const accountEmail = accData.data[0].emailAddress || accData.data[0].primaryEmailAddress || '';
+    const accounts = Array.isArray(accData) ? accData
+      : Array.isArray(accData?.data) ? accData.data
+      : accData?.data ? [accData.data] : [];
 
-    // 2. Get folder list
+    if (!accounts.length) {
+      return res.status(400).json({ error: 'No Zoho Mail account found', raw: accData });
+    }
+
+    const acc          = accounts[0];
+    const accountId    = acc.accountId || acc.id;
+    const accountEmail = acc.emailAddress || acc.primaryEmailAddress || acc.email || '';
+
+    if (!accountId) {
+      return res.status(400).json({ error: 'No accountId found', acc });
+    }
+
+    // 2. Get folders
     const folderRes = await fetch(`https://mail.zoho.com/api/accounts/${accountId}/folders`, {
       headers: { Authorization: `Zoho-oauthtoken ${token}` },
     });
-    const folderData = await folderRes.json();
-    const folders = folderData.data || [];
+    const folderData = await folderRes.json().catch(() => ({}));
+    const folders = Array.isArray(folderData?.data) ? folderData.data
+      : Array.isArray(folderData) ? folderData : [];
 
-    // 3. Get folder param
-    const folderName = req.query.folder || 'Inbox';
-    const msgId      = req.query.msgId;
-    const limit      = parseInt(req.query.limit) || 50;
-    const start      = parseInt(req.query.start) || 0;
+    const folderList = folders.map(f => ({
+      id:     f.folderId || f.id,
+      name:   f.folderName || f.name,
+      unread: f.unreadCount || f.unread || 0,
+    }));
 
-    // If requesting single message
+    // 3. Single message
+    const msgId = req.query.msgId;
     if (msgId) {
-      const msgRes = await fetch(`https://mail.zoho.com/api/accounts/${accountId}/messages/${msgId}`, {
-        headers: { Authorization: `Zoho-oauthtoken ${token}` },
-      });
+      const msgRes  = await fetch(
+        `https://mail.zoho.com/api/accounts/${accountId}/messages/${msgId}`,
+        { headers: { Authorization: `Zoho-oauthtoken ${token}` } }
+      );
       const msgData = await msgRes.json();
-      return res.status(200).json({ message: msgData.data, accountEmail });
+      return res.status(200).json({ message: msgData.data || msgData, accountEmail });
     }
 
-    // Find folder ID
-    const folder = folders.find(f => f.folderName.toLowerCase() === folderName.toLowerCase());
-    const folderId = folder?.folderId;
+    // 4. Messages list
+    const folderName = req.query.folder || 'Inbox';
+    const limit      = Math.min(parseInt(req.query.limit) || 50, 200);
+    const start      = parseInt(req.query.start) || 0;
 
-    // 4. Get messages
+    const matchedFolder = folderList.find(
+      f => (f.name || '').toLowerCase() === folderName.toLowerCase()
+    );
+    const folderId = matchedFolder?.id;
+
     let msgUrl;
     if (folderId) {
       msgUrl = `https://mail.zoho.com/api/accounts/${accountId}/folders/${folderId}/messages?limit=${limit}&start=${start}&sortorder=false`;
@@ -74,18 +105,27 @@ export default async function handler(req, res) {
       msgUrl = `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folder=${encodeURIComponent(folderName)}&limit=${limit}&start=${start}&sortorder=false`;
     }
 
-    const msgRes  = await fetch(msgUrl, { headers: { Authorization: `Zoho-oauthtoken ${token}` } });
-    const msgData = await msgRes.json();
+    const msgRes = await fetch(msgUrl, {
+      headers: { Authorization: `Zoho-oauthtoken ${token}` },
+    });
+    const msgRaw = await msgRes.text();
+    let msgData;
+    try { msgData = JSON.parse(msgRaw); } catch(e) {
+      return res.status(500).json({ error: 'Message parse error', raw: msgRaw.slice(0,500) });
+    }
+
+    const emails = Array.isArray(msgData?.data) ? msgData.data
+      : Array.isArray(msgData) ? msgData : [];
 
     return res.status(200).json({
-      emails:  msgData.data || [],
-      folders: folders.map(f => ({ id: f.folderId, name: f.folderName, unread: f.unreadCount || 0 })),
+      emails,
+      folders: folderList,
       accountEmail,
-      total: msgData.data?.length || 0,
+      total: emails.length,
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('API Error:', err);
     return res.status(500).json({ error: err.message });
   }
 }
