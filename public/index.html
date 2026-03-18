@@ -3,475 +3,382 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mailbox</title>
+<title>Zoho Mail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   TOKENS — Warm Obsidian palette
-══════════════════════════════════════════════ */
-:root {
-  --ink:     #0E0E12;
-  --ink1:    #15151C;
-  --ink2:    #1C1C26;
-  --ink3:    #242432;
-  --ink4:    #2E2E42;
-  --seam:    rgba(255,255,255,.055);
-  --seam2:   rgba(255,255,255,.095);
-  --seam3:   rgba(255,255,255,.14);
-  --cream:   #F0EDE6;
-  --cream2:  #C8C4BC;
-  --cream3:  #7A7870;
-  --cream4:  #48464060;
-  --gold:    #D4A84B;
-  --gold2:   #F0C96A;
-  --coral:   #E8634A;
-  --sage:    #5BAF8E;
-  --lavender:#8B82E0;
-  --r:       6px;
-  --r2:      10px;
-  --r3:      16px;
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --c-bg:       #0a0a0a;
+  --c-surface:  #111111;
+  --c-surface2: #1a1a1a;
+  --c-surface3: #222222;
+  --c-border:   #2a2a2a;
+  --c-border2:  #333333;
+  --c-text:     #ededed;
+  --c-text2:    #a1a1aa;
+  --c-text3:    #52525b;
+  --c-accent:   #6366f1;
+  --c-accent2:  #818cf8;
+  --c-green:    #22c55e;
+  --c-red:      #ef4444;
+  --c-orange:   #f97316;
+  --c-yellow:   #eab308;
+  --r:6px;
+  --r2:10px;
+  --r3:14px;
 }
+html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text);font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--c-border2);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
 
-/* ══════════════════════════════════════════════
-   RESET
-══════════════════════════════════════════════ */
-*,::before,::after { box-sizing:border-box; margin:0; padding:0 }
-html,body {
-  height:100%; overflow:hidden;
-  background:var(--ink); color:var(--cream);
-  font-family:'Outfit',system-ui,sans-serif;
-  font-size:14px; line-height:1.5;
-  -webkit-font-smoothing:antialiased;
+/* ── TOPBAR ── */
+.topbar{
+  height:48px;display:flex;align-items:center;padding:0 16px;gap:10px;
+  background:var(--c-surface);border-bottom:1px solid var(--c-border);
+  position:relative;z-index:100;
 }
+.brand{display:flex;align-items:center;gap:8px}
+.brand-icon{
+  width:26px;height:26px;border-radius:6px;
+  background:var(--c-accent);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:700;flex-shrink:0;
+  box-shadow:0 0 0 1px rgba(99,102,241,.4),0 2px 8px rgba(99,102,241,.25);
+}
+.brand-name{font-size:14px;font-weight:600;color:var(--c-text);letter-spacing:-.3px}
+.topbar-gap{flex:1}
+.topbar-right{display:flex;align-items:center;gap:6px}
+.topbar-email{
+  font-size:12px;color:var(--c-text2);padding:4px 10px;
+  border-radius:20px;border:1px solid var(--c-border);
+  background:var(--c-surface2);max-width:180px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.status{
+  display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:20px;border:1px solid rgba(34,197,94,.2);
+  background:rgba(34,197,94,.06);font-size:11px;color:var(--c-green);
+}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--c-green);box-shadow:0 0 0 2px rgba(34,197,94,.25);animation:pulse 2.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* grain overlay */
-body::before {
-  content:'';
-  position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity:.6;
-}
+/* ── APP GRID ── */
+.app{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 48px);overflow:hidden}
 
-/* scrollbar */
-::-webkit-scrollbar { width:3px }
-::-webkit-scrollbar-thumb { background:var(--seam2); border-radius:2px }
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--c-surface);border-right:1px solid var(--c-border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-header{padding:14px 12px 8px;flex-shrink:0}
+.sb-search{
+  display:flex;align-items:center;gap:7px;padding:7px 10px;
+  background:var(--c-surface2);border:1px solid var(--c-border);
+  border-radius:var(--r2);cursor:text;transition:.15s;
+}
+.sb-search:focus-within{border-color:var(--c-accent)}
+.sb-search input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:12px;color:var(--c-text);font-family:inherit;
+}
+.sb-search input::placeholder{color:var(--c-text3)}
+.sb-search-ic{color:var(--c-text3);font-size:13px;flex-shrink:0}
+.sb-folders{flex:1;overflow-y:auto;padding:8px 8px 0}
+.sb-section{
+  font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:var(--c-text3);padding:8px 6px 4px;
+}
+.folder-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 8px;border-radius:var(--r);
+  cursor:pointer;transition:.12s;
+  font-size:13px;color:var(--c-text2);
+  border:1px solid transparent;margin-bottom:1px;
+  background:transparent;width:100%;text-align:left;font-family:inherit;
+}
+.folder-item:hover{background:var(--c-surface2);color:var(--c-text)}
+.folder-item.active{
+  background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);
+  color:var(--c-accent2);
+}
+.fi-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.7}
+.fi-name{flex:1;font-weight:500}
+.fi-count{
+  font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;
+  background:var(--c-accent);color:#fff;min-width:18px;text-align:center;
+}
+.fi-count.z{background:var(--c-surface3);color:var(--c-text3)}
+.sb-divider{height:1px;background:var(--c-border);margin:8px 8px}
+.sb-footer{padding:12px;flex-shrink:0;border-top:1px solid var(--c-border)}
+.sb-acct-label{font-size:10px;color:var(--c-text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.sb-acct-email{font-size:11px;color:var(--c-text2);word-break:break-all;line-height:1.4}
 
-/* ══════════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════════ */
-.header {
-  position:relative; z-index:50;
-  display:flex; align-items:center;
-  height:52px; padding:0 16px; gap:12px;
-  background:rgba(14,14,18,.92);
-  backdrop-filter:blur(20px) saturate(160%);
-  border-bottom:1px solid var(--seam);
-}
-.wordmark {
-  font-family:'DM Serif Display',serif;
-  font-size:18px; letter-spacing:-.3px;
-  color:var(--cream);
-}
-.wordmark em { color:var(--gold); font-style:normal }
-.header-fill { flex:1 }
-.account-tag {
-  display:flex; align-items:center; gap:6px;
-  padding:4px 11px; border-radius:20px;
-  background:var(--ink2); border:1px solid var(--seam2);
-  font-size:11px; color:var(--cream3);
-  max-width:220px; overflow:hidden;
-}
-.online-dot {
-  width:5px; height:5px; border-radius:50%;
-  background:var(--sage); flex-shrink:0;
-  box-shadow:0 0 6px var(--sage);
-  animation:breathe 3s ease-in-out infinite;
-}
-@keyframes breathe { 0%,100%{opacity:1} 50%{opacity:.35} }
-.account-email { white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-
-/* ══════════════════════════════════════════════
-   ROOT SHELL
-══════════════════════════════════════════════ */
-.shell {
-  display:grid;
-  grid-template-columns:56px 210px 1fr;
-  height:calc(100vh - 52px);
-  overflow:hidden;
-  position:relative; z-index:1;
-}
-
-/* ══════════════════════════════════════════════
-   ICON RAIL (leftmost column)
-══════════════════════════════════════════════ */
-.rail {
-  background:var(--ink1);
-  border-right:1px solid var(--seam);
-  display:flex; flex-direction:column;
-  align-items:center; padding:10px 0; gap:2px;
-}
-.rail-btn {
-  width:36px; height:36px; border-radius:var(--r2);
-  display:flex; align-items:center; justify-content:center;
-  font-size:16px; cursor:pointer; transition:.15s;
-  border:1px solid transparent; color:var(--cream3);
-  background:transparent; position:relative;
-}
-.rail-btn:hover { background:var(--ink3); color:var(--cream) }
-.rail-btn.active { background:rgba(212,168,75,.12); border-color:rgba(212,168,75,.25); color:var(--gold) }
-.rail-sep { height:1px; width:24px; background:var(--seam); margin:6px 0 }
-.rail-bottom { margin-top:auto }
-
-/* ══════════════════════════════════════════════
-   FOLDER PANEL
-══════════════════════════════════════════════ */
-.panel {
-  background:var(--ink1);
-  border-right:1px solid var(--seam);
-  display:flex; flex-direction:column; overflow:hidden;
-}
-.panel-head {
-  padding:14px 14px 8px;
-  border-bottom:1px solid var(--seam);
-  flex-shrink:0;
-}
-.panel-title {
-  font-family:'DM Serif Display',serif;
-  font-size:14px; color:var(--cream2); letter-spacing:.2px;
-}
-.panel-scroll { flex:1; overflow-y:auto; padding:8px 6px }
-
-.fgroup-label {
-  font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase;
-  color:var(--cream4); padding:6px 8px 3px;
-}
-.folder-row {
-  display:flex; align-items:center; gap:8px;
-  padding:7px 10px; border-radius:var(--r);
-  cursor:pointer; transition:all .12s;
-  border:1px solid transparent; margin-bottom:1px;
-  background:transparent; color:var(--cream2);
-  font-family:'Outfit',sans-serif; font-size:12.5px; font-weight:400;
-  width:100%; text-align:left;
-}
-.folder-row:hover { background:var(--ink2); color:var(--cream) }
-.folder-row.on {
-  background:rgba(212,168,75,.08);
-  border-color:rgba(212,168,75,.18);
-  color:var(--gold2);
-}
-.f-icon { font-size:12px; width:16px; text-align:center; flex-shrink:0; opacity:.8 }
-.f-name { flex:1; font-weight:500 }
-.f-badge {
-  font-size:10px; font-weight:600; padding:1px 6px; border-radius:10px;
-  background:var(--gold); color:var(--ink); min-width:18px; text-align:center;
-  letter-spacing:-.3px;
-}
-.f-badge.z { background:var(--ink3); color:var(--cream4) }
-
-.panel-foot {
-  padding:10px 12px;
-  border-top:1px solid var(--seam);
-  flex-shrink:0;
-}
-.foot-label { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--cream4); margin-bottom:3px }
-.foot-email { font-size:11px; color:var(--cream3); word-break:break-all; line-height:1.4 }
-
-/* ══════════════════════════════════════════════
-   MAIN CONTENT
-══════════════════════════════════════════════ */
-.main { display:flex; flex-direction:column; overflow:hidden; background:var(--ink) }
+/* ── MAIN AREA ── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--c-bg)}
 
 /* toolbar */
-.toolbar {
-  display:flex; align-items:center; gap:8px;
-  padding:10px 16px; flex-shrink:0;
-  background:var(--ink1); border-bottom:1px solid var(--seam);
+.toolbar{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
+  background:var(--c-surface);border-bottom:1px solid var(--c-border);flex-shrink:0;
 }
-.search-wrap {
-  flex:1; display:flex; align-items:center; gap:8px;
-  background:var(--ink2); border:1px solid var(--seam);
-  border-radius:var(--r2); padding:7px 12px;
-  transition:border-color .15s;
+.search-bar{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:var(--c-surface2);border:1px solid var(--c-border);
+  border-radius:var(--r2);padding:8px 12px;transition:.15s;
 }
-.search-wrap:focus-within { border-color:rgba(212,168,75,.4) }
-.search-wrap input {
-  flex:1; background:transparent; border:none; outline:none;
-  color:var(--cream); font-size:13px; font-family:'Outfit',sans-serif;
+.search-bar:focus-within{border-color:var(--c-accent)}
+.search-bar input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-size:13px;color:var(--c-text);font-family:inherit;
 }
-.search-wrap input::placeholder { color:var(--cream4) }
-.search-ic { color:var(--cream3); font-size:14px; flex-shrink:0 }
-.tool-btn {
-  display:flex; align-items:center; gap:5px;
-  padding:7px 12px; border-radius:var(--r2);
-  background:var(--ink2); border:1px solid var(--seam);
-  color:var(--cream3); font-size:12px; font-weight:500;
-  cursor:pointer; transition:.12s; white-space:nowrap;
-  font-family:'Outfit',sans-serif;
+.search-bar input::placeholder{color:var(--c-text3)}
+.search-bar-ic{color:var(--c-text3);font-size:14px;flex-shrink:0}
+.btn{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 12px;border-radius:var(--r2);
+  background:var(--c-surface2);border:1px solid var(--c-border);
+  color:var(--c-text2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:.12s;white-space:nowrap;font-family:inherit;
 }
-.tool-btn:hover { border-color:var(--seam2); color:var(--cream) }
+.btn:hover{border-color:var(--c-border2);color:var(--c-text)}
+.btn.primary{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
+.btn.primary:hover{background:#4f46e5}
 
-/* stat row */
-.stat-row {
-  display:flex; border-bottom:1px solid var(--seam);
-  flex-shrink:0; background:var(--ink1);
+/* stats */
+.stats{
+  display:flex;border-bottom:1px solid var(--c-border);
+  flex-shrink:0;background:var(--c-surface);
 }
-.stat-cell {
-  flex:1; padding:9px 16px;
-  display:flex; align-items:center; gap:10px;
+.stat{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.stat+.stat{border-left:1px solid var(--c-border)}
+.stat-icon{
+  width:32px;height:32px;border-radius:var(--r);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
 }
-.stat-cell+.stat-cell { border-left:1px solid var(--seam) }
-.stat-bar { width:2px; height:24px; border-radius:1px; flex-shrink:0 }
-.stat-num {
-  font-family:'DM Serif Display',serif;
-  font-size:22px; line-height:1; color:var(--cream);
-}
-.stat-key {
-  font-size:10px; text-transform:uppercase; letter-spacing:1.5px;
-  color:var(--cream4); margin-top:2px;
-}
+.stat-val{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.stat-lbl{font-size:11px;color:var(--c-text3);margin-top:1px}
 
-/* ══════════════════════════════════════════════
-   EMAIL LIST
-══════════════════════════════════════════════ */
-.email-list { flex:1; overflow-y:auto }
+/* ── EMAIL LIST ── */
+.list{flex:1;overflow-y:auto}
+.list-header{
+  display:grid;grid-template-columns:44px 1fr 70px;gap:10px;
+  padding:7px 16px;border-bottom:1px solid var(--c-border);
+  background:var(--c-surface);
+}
+.lh-cell{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--c-text3)}
 
-.mail-item {
-  display:grid; grid-template-columns:48px 1fr 58px;
-  gap:10px; align-items:start;
-  padding:12px 16px; border-bottom:1px solid var(--seam);
-  cursor:pointer; position:relative; transition:background .1s;
+.email-row{
+  display:grid;grid-template-columns:44px 1fr 70px;
+  gap:10px;align-items:start;
+  padding:12px 16px;border-bottom:1px solid var(--c-border);
+  cursor:pointer;position:relative;transition:background .1s;
 }
-.mail-item:hover { background:var(--ink1) }
-.mail-item.unread { background:rgba(212,168,75,.035) }
-.mail-item.unread::before {
-  content:''; position:absolute; left:0; top:0; bottom:0;
-  width:2px; background:var(--gold);
-  border-radius:0 1px 1px 0;
+.email-row:hover{background:var(--c-surface)}
+.email-row.unread{background:rgba(99,102,241,.04)}
+.email-row.unread::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:2px;background:var(--c-accent);
 }
-.mail-item.picked { background:var(--ink2) }
+.email-row.selected{background:var(--c-surface2)}
+.email-row:last-child{border-bottom:none}
 
-.mail-av {
-  width:40px; height:40px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:13px; font-weight:600; flex-shrink:0;
-  font-family:'DM Serif Display',serif;
+.e-avatar{
+  width:38px;height:38px;border-radius:var(--r2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;flex-shrink:0;letter-spacing:-.5px;
 }
-.mail-body { min-width:0 }
-.mail-from {
-  font-size:13px; font-weight:500; color:var(--cream);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;
+.e-body{min-width:0}
+.e-from{
+  font-size:13px;font-weight:600;color:var(--c-text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;
 }
-.mail-item:not(.unread) .mail-from { color:var(--cream3); font-weight:400 }
-.mail-subj {
-  font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px;
+.email-row:not(.unread) .e-from{font-weight:400;color:var(--c-text2)}
+.e-subject{
+  font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;
 }
-.mail-item.unread .mail-subj { color:var(--cream2); font-weight:500 }
-.mail-item:not(.unread) .mail-subj { color:var(--cream4) }
-.mail-prev {
-  font-size:11px; color:var(--cream4);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+.email-row.unread .e-subject{color:var(--c-text);font-weight:500}
+.email-row:not(.unread) .e-subject{color:var(--c-text3)}
+.e-preview{
+  font-size:11.5px;color:var(--c-text3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.mail-side { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0 }
-.mail-time { font-size:10px; color:var(--cream4) }
-.mail-dot {
-  width:6px; height:6px; border-radius:50%;
-  background:var(--gold); box-shadow:0 0 4px var(--gold);
-}
+.e-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
+.e-time{font-size:11px;color:var(--c-text3)}
+.e-unread{width:7px;height:7px;border-radius:50%;background:var(--c-accent)}
 
 /* empty */
-.empty {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:40px; text-align:center;
+.empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;padding:40px;text-align:center;
 }
-.empty-glyph {
-  font-family:'DM Serif Display',serif; font-size:52px;
-  color:var(--seam2); margin-bottom:16px; line-height:1;
+.empty-icon{
+  width:56px;height:56px;border-radius:16px;
+  background:var(--c-surface2);border:1px solid var(--c-border);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  margin:0 auto 16px;
 }
-.empty-head { font-family:'DM Serif Display',serif; font-size:20px; color:var(--cream3); margin-bottom:6px }
-.empty-sub { font-size:12px; color:var(--cream4); line-height:1.7 }
+.empty-title{font-size:16px;font-weight:600;color:var(--c-text);margin-bottom:6px}
+.empty-desc{font-size:13px;color:var(--c-text3);line-height:1.7;max-width:280px}
 
 /* pager */
-.pager {
-  display:flex; align-items:center; justify-content:center; gap:4px;
-  padding:10px; border-top:1px solid var(--seam);
-  background:var(--ink1); flex-shrink:0;
+.pager{
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  padding:10px 16px;border-top:1px solid var(--c-border);
+  background:var(--c-surface);flex-shrink:0;
 }
-.pg {
-  min-width:28px; height:28px; border-radius:var(--r);
-  border:1px solid var(--seam); background:var(--ink2);
-  color:var(--cream3); font-size:11px; font-weight:600;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  padding:0 6px; transition:.12s; font-family:'Outfit',sans-serif;
+.pg{
+  min-width:28px;height:28px;padding:0 6px;border-radius:var(--r);
+  border:1px solid var(--c-border);background:var(--c-surface2);
+  color:var(--c-text2);font-size:12px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.12s;font-family:inherit;
 }
-.pg:hover { border-color:var(--seam2); color:var(--cream) }
-.pg.on { background:rgba(212,168,75,.15); border-color:rgba(212,168,75,.4); color:var(--gold2) }
-.pg:disabled { opacity:.25; cursor:default; pointer-events:none }
-.pg-info { font-size:11px; color:var(--cream4); padding:0 8px }
+.pg:hover,.pg.on{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
+.pg:disabled{opacity:.3;cursor:default;pointer-events:none}
+.pg-dots{color:var(--c-text3);font-size:12px;padding:0 4px}
+.pg-info{font-size:11px;color:var(--c-text3);padding:0 8px}
 
-/* ══════════════════════════════════════════════
-   DETAIL DRAWER
-══════════════════════════════════════════════ */
-.drawer {
-  position:fixed; top:52px; right:0;
-  width:50vw; max-width:740px; height:calc(100vh - 52px);
-  background:var(--ink1); border-left:1px solid var(--seam2);
-  display:none; flex-direction:column; z-index:40;
-  animation:drawer-in .22s cubic-bezier(.25,.8,.25,1);
+/* ── DETAIL PANEL ── */
+.detail{
+  position:fixed;top:48px;right:0;
+  width:48vw;max-width:720px;
+  height:calc(100vh - 48px);
+  background:var(--c-surface);border-left:1px solid var(--c-border);
+  display:none;flex-direction:column;z-index:50;
+  animation:slide-right .2s cubic-bezier(.16,1,.3,1);
 }
-@keyframes drawer-in { from{transform:translateX(16px);opacity:0} to{transform:none;opacity:1} }
+@keyframes slide-right{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
 
-.drawer-top {
-  padding:16px 20px; border-bottom:1px solid var(--seam);
-  display:flex; gap:10px; align-items:flex-start; flex-shrink:0;
+.detail-topbar{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--c-border);flex-shrink:0;
 }
-.close-x {
-  width:28px; height:28px; border-radius:var(--r);
-  background:var(--ink2); border:1px solid var(--seam);
-  color:var(--cream3); font-size:13px; flex-shrink:0;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:.12s; font-family:'Outfit',sans-serif;
+.detail-close{
+  width:28px;height:28px;border-radius:var(--r);
+  border:1px solid var(--c-border);background:var(--c-surface2);
+  color:var(--c-text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.12s;flex-shrink:0;font-family:inherit;
 }
-.close-x:hover { border-color:var(--coral); color:var(--coral) }
-.d-subject {
-  font-family:'DM Serif Display',serif;
-  font-size:17px; line-height:1.3; color:var(--cream); margin-bottom:3px;
-}
-.d-date { font-size:11px; color:var(--cream4) }
+.detail-close:hover{border-color:var(--c-red);color:var(--c-red)}
+.detail-subject-wrap{flex:1;min-width:0}
+.detail-subject{font-size:15px;font-weight:600;color:var(--c-text);line-height:1.35;margin-bottom:2px}
+.detail-date{font-size:11px;color:var(--c-text3)}
 
-.drawer-meta {
-  padding:12px 20px; border-bottom:1px solid var(--seam);
-  display:flex; gap:10px; align-items:flex-start;
-  background:var(--ink2); flex-shrink:0;
+.detail-sender{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--c-border);background:var(--c-surface2);flex-shrink:0;
 }
-.d-av {
-  width:38px; height:38px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:13px; font-weight:600; flex-shrink:0;
-  font-family:'DM Serif Display',serif;
+.ds-avatar{
+  width:36px;height:36px;border-radius:var(--r2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;
 }
-.d-name { font-size:13px; font-weight:500; color:var(--cream); margin-bottom:2px }
-.d-addr { font-size:11px; color:var(--cream4) }
-.d-to   { font-size:11px; color:var(--cream4); margin-top:2px }
+.ds-name{font-size:13px;font-weight:600;color:var(--c-text);margin-bottom:2px}
+.ds-email{font-size:11px;color:var(--c-text3)}
+.ds-to{font-size:11px;color:var(--c-text3);margin-top:2px}
 
-.drawer-acts {
-  padding:8px 20px; border-bottom:1px solid var(--seam);
-  display:flex; gap:6px; flex-shrink:0;
+.detail-actions{
+  display:flex;gap:6px;padding:8px 16px;
+  border-bottom:1px solid var(--c-border);flex-shrink:0;
 }
-.d-act {
-  padding:5px 12px; border-radius:var(--r);
-  background:var(--ink2); border:1px solid var(--seam);
-  color:var(--cream3); font-size:11px; font-weight:500;
-  cursor:pointer; transition:.12s; font-family:'Outfit',sans-serif;
+.action{
+  padding:5px 12px;border-radius:var(--r);
+  border:1px solid var(--c-border);background:var(--c-surface2);
+  color:var(--c-text2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:.12s;font-family:inherit;
 }
-.d-act:hover { border-color:rgba(212,168,75,.3); color:var(--gold2) }
+.action:hover{border-color:var(--c-border2);color:var(--c-text)}
 
-.drawer-body { flex:1; overflow-y:auto; padding:20px }
-.body-text {
-  font-size:13px; line-height:1.85; color:var(--cream2);
-  white-space:pre-wrap; word-break:break-word;
-}
+.detail-body{flex:1;overflow-y:auto;padding:20px}
+.body-text{font-size:13px;line-height:1.85;color:var(--c-text2);white-space:pre-wrap;word-break:break-word}
 
-/* ══════════════════════════════════════════════
-   GLOBAL LOADER
-══════════════════════════════════════════════ */
-#gloader {
-  position:fixed; inset:0; z-index:200;
-  background:var(--ink);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;z-index:200;background:var(--c-bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
 }
-.loader-ring {
-  width:36px; height:36px; border-radius:50%;
-  border:2px solid var(--seam2);
-  border-top-color:var(--gold);
-  animation:spin .7s linear infinite;
+.spinner{
+  width:34px;height:34px;border-radius:50%;
+  border:2px solid var(--c-border2);border-top-color:var(--c-accent);
+  animation:spin .65s linear infinite;
 }
-@keyframes spin { to{transform:rotate(360deg)} }
-.loader-word {
-  font-family:'DM Serif Display',serif; font-size:13px;
-  color:var(--cream3); letter-spacing:.5px;
-}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-text{font-size:13px;color:var(--c-text2)}
+.sk{background:linear-gradient(90deg,var(--c-surface2) 25%,var(--c-surface3) 50%,var(--c-surface2) 75%);background-size:200%;animation:shim 1.2s ease-in-out infinite;border-radius:4px}
+@keyframes shim{0%{background-position:200%}100%{background-position:-200%}}
+.skl{height:10px;margin-bottom:8px}
 
-/* skeleton */
-.sk {
-  background:linear-gradient(90deg,var(--ink2) 0%,var(--ink3) 50%,var(--ink2) 100%);
-  background-size:200%; animation:shim 1.3s ease-in-out infinite; border-radius:3px;
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:18px;right:18px;z-index:999;
+  padding:11px 16px;border-radius:var(--r2);
+  background:var(--c-surface2);border:1px solid var(--c-border2);
+  border-left:3px solid var(--c-green);
+  font-size:12px;color:var(--c-text);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+  display:none;animation:toast-up .2s ease;font-family:inherit;
 }
-@keyframes shim { 0%{background-position:200%} 100%{background-position:-200%} }
-.skl { height:10px; margin-bottom:9px }
+#toast.err{border-left-color:var(--c-red)}
+@keyframes toast-up{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
 
-/* toast */
-#toast {
-  position:fixed; bottom:18px; right:18px; z-index:300;
-  padding:11px 18px; border-radius:var(--r2);
-  background:var(--ink2); border:1px solid var(--seam2);
-  border-left:3px solid var(--sage);
-  font-size:12px; color:var(--cream); display:none;
-  box-shadow:0 8px 24px rgba(0,0,0,.5);
-  animation:fade-up .2s ease;
-  font-family:'Outfit',sans-serif;
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .app{grid-template-columns:180px 1fr}
 }
-#toast.err { border-left-color:var(--coral) }
-@keyframes fade-up { from{transform:translateY(8px);opacity:0} to{transform:none;opacity:1} }
-
-/* ══════════════════════════════════════════════
-   RESPONSIVE
-══════════════════════════════════════════════ */
-@media(max-width:900px) {
-  .shell { grid-template-columns:56px 1fr }
-  .panel { display:none }
+@media(max-width:720px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .detail{width:100vw;max-width:none}
+  .stats{display:none}
 }
-@media(max-width:620px) {
-  .shell { grid-template-columns:1fr }
-  .rail  { display:none }
-  .panel { display:none }
-  .drawer { width:100vw; max-width:none }
-  .stat-row { display:none }
+@media(max-width:480px){
+  .list-header{display:none}
 }
 </style>
 </head>
 <body>
 
-<div id="gloader">
-  <div class="loader-ring"></div>
-  <div class="loader-word" id="loader-msg">Connecting...</div>
+<div id="loader">
+  <div class="spinner"></div>
+  <div class="spinner-text" id="loader-msg">Loading...</div>
 </div>
 
-<!-- ── HEADER ── -->
-<header class="header">
-  <div class="wordmark">Mail<em>box</em></div>
-  <div class="header-fill"></div>
-  <div class="account-tag">
-    <span class="online-dot"></span>
-    <span class="account-email" id="h-email">Loading...</span>
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">M</div>
+    <span class="brand-name">Zoho Mail</span>
+  </div>
+  <div class="topbar-gap"></div>
+  <div class="topbar-right">
+    <div class="status"><span class="status-dot"></span>Live</div>
+    <div class="topbar-email" id="top-email">—</div>
   </div>
 </header>
 
-<!-- ── SHELL ── -->
-<div class="shell">
+<!-- APP -->
+<div class="app">
 
-  <!-- ICON RAIL -->
-  <nav class="rail">
-    <button class="rail-btn active" title="Mail">✉</button>
-    <div class="rail-sep"></div>
-    <button class="rail-btn" title="Search" onclick="document.getElementById('search-inp').focus()">⌕</button>
-    <button class="rail-btn rail-bottom" title="Refresh" onclick="doRefresh()">↻</button>
-  </nav>
-
-  <!-- FOLDER PANEL -->
-  <aside class="panel">
-    <div class="panel-head">
-      <div class="panel-title">Folders</div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <div class="sb-search">
+        <span class="sb-search-ic">⌕</span>
+        <input id="sb-srch" type="text" placeholder="Search..." oninput="onSearch(this.value)">
+      </div>
     </div>
-    <div class="panel-scroll">
-      <div class="fgroup-label">Mailboxes</div>
+    <div class="sb-folders">
+      <div class="sb-section">Folders</div>
       <div id="folder-list"></div>
     </div>
-    <div class="panel-foot">
-      <div class="foot-label">Account</div>
-      <div class="foot-email" id="p-email">—</div>
+    <div class="sb-divider"></div>
+    <div class="sb-footer">
+      <div class="sb-acct-label">Account</div>
+      <div class="sb-acct-email" id="sb-email">—</div>
     </div>
   </aside>
 
@@ -480,68 +387,75 @@ body::before {
 
     <!-- Toolbar -->
     <div class="toolbar">
-      <div class="search-wrap">
-        <span class="search-ic">⌕</span>
-        <input id="search-inp" type="text" placeholder="Search sender, subject, content..." oninput="onSearch()">
+      <div class="search-bar">
+        <span class="search-bar-ic">⌕</span>
+        <input id="main-srch" type="text" placeholder="Search sender, subject or content..." oninput="onSearch(this.value)">
       </div>
-      <button class="tool-btn" onclick="doRefresh()">↻ Refresh</button>
+      <button class="btn" onclick="doRefresh()">↻ Refresh</button>
     </div>
 
     <!-- Stats -->
-    <div class="stat-row">
-      <div class="stat-cell">
-        <div class="stat-bar" style="background:var(--gold)"></div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-icon" style="background:rgba(99,102,241,.1);color:var(--c-accent)">✉</div>
         <div>
-          <div class="stat-num" id="s-total">—</div>
-          <div class="stat-key">Messages</div>
+          <div class="stat-val" id="st-total">—</div>
+          <div class="stat-lbl">Total</div>
         </div>
       </div>
-      <div class="stat-cell">
-        <div class="stat-bar" style="background:var(--coral)"></div>
+      <div class="stat">
+        <div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--c-red)">◉</div>
         <div>
-          <div class="stat-num" id="s-unread">—</div>
-          <div class="stat-key">Unread</div>
+          <div class="stat-val" id="st-unread">—</div>
+          <div class="stat-lbl">Unread</div>
         </div>
       </div>
-      <div class="stat-cell">
-        <div class="stat-bar" style="background:var(--sage)"></div>
+      <div class="stat">
+        <div class="stat-icon" style="background:rgba(34,197,94,.1);color:var(--c-green)">◈</div>
         <div>
-          <div class="stat-num" id="s-folder" style="font-size:13px;padding-top:4px">—</div>
-          <div class="stat-key">Folder</div>
+          <div class="stat-val" id="st-folder" style="font-size:13px;padding-top:3px">—</div>
+          <div class="stat-lbl">Folder</div>
         </div>
       </div>
     </div>
 
-    <!-- List -->
-    <div class="email-list" id="email-list"></div>
+    <!-- List Header -->
+    <div class="list-header">
+      <div class="lh-cell"></div>
+      <div class="lh-cell">Message</div>
+      <div class="lh-cell" style="text-align:right">Time</div>
+    </div>
+
+    <!-- Email List -->
+    <div class="list" id="email-list"></div>
     <div class="pager" id="pager"></div>
 
   </main>
 </div>
 
-<!-- ── DETAIL DRAWER ── -->
-<div class="drawer" id="drawer">
-  <div class="drawer-top">
-    <button class="close-x" onclick="closeDrawer()">✕</button>
-    <div style="flex:1;min-width:0">
-      <div class="d-subject" id="d-subj">—</div>
-      <div class="d-date" id="d-date"></div>
+<!-- DETAIL -->
+<div class="detail" id="detail">
+  <div class="detail-topbar">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subject-wrap">
+      <div class="detail-subject" id="d-subject">—</div>
+      <div class="detail-date" id="d-date"></div>
     </div>
   </div>
-  <div class="drawer-meta">
-    <div class="d-av" id="d-av">?</div>
+  <div class="detail-sender">
+    <div class="ds-avatar" id="d-avatar">?</div>
     <div>
-      <div class="d-name" id="d-name"></div>
-      <div class="d-addr" id="d-addr"></div>
-      <div class="d-to"   id="d-to"></div>
+      <div class="ds-name"  id="d-name"></div>
+      <div class="ds-email" id="d-from"></div>
+      <div class="ds-to"    id="d-to"></div>
     </div>
   </div>
-  <div class="drawer-acts">
-    <button class="d-act">↩ Reply</button>
-    <button class="d-act">→ Forward</button>
-    <button class="d-act">⬇ Download</button>
+  <div class="detail-actions">
+    <button class="action">↩ Reply</button>
+    <button class="action">→ Forward</button>
+    <button class="action">⬇ Download</button>
   </div>
-  <div class="drawer-body">
+  <div class="detail-body">
     <div id="d-body" class="body-text"></div>
   </div>
 </div>
@@ -549,129 +463,116 @@ body::before {
 <div id="toast"></div>
 
 <script>
-/* ── CONFIG ── */
-const API  = '/api/emails';
-const PER  = 30;
+const API='/api/emails', PER=30;
+let emails=[],folders=[],curFolder='',curPage=1,query='';
 
-/* ── STATE ── */
-let emails  = [], folders = [];
-let active  = '', page = 1, query = '';
-
-/* ── PALETTE ── */
-const HUES = [
-  ['#D4A84B','#3A2E10'],['#E8634A','#3A1A10'],['#5BAF8E','#10302A'],
-  ['#8B82E0','#201E3A'],['#E07B9A','#3A1028'],['#5AADD4','#102030'],
-  ['#C4A882','#2E2618'],['#A0C464','#1C2A0E'],
+const COLORS=[
+  {bg:'rgba(99,102,241,.15)',fg:'#818cf8'},
+  {bg:'rgba(239,68,68,.15)',fg:'#f87171'},
+  {bg:'rgba(34,197,94,.15)',fg:'#4ade80'},
+  {bg:'rgba(249,115,22,.15)',fg:'#fb923c'},
+  {bg:'rgba(234,179,8,.15)',fg:'#facc15'},
+  {bg:'rgba(168,85,247,.15)',fg:'#c084fc'},
+  {bg:'rgba(20,184,166,.15)',fg:'#2dd4bf'},
+  {bg:'rgba(236,72,153,.15)',fg:'#f472b6'},
 ];
-function hue(s){ let h=0; for(const c of(s||''))h=(h*31+c.charCodeAt(0))%HUES.length; return HUES[h] }
-function ini(s){ return(s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?' }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') }
-function dh(s) { const t=document.createElement('textarea'); t.innerHTML=s||''; return t.value }
-function nm(a) { if(!a)return''; if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,''); return a.split('@')[0] }
-function fS(ms){
+const FICONS={inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',archive:'◫',notification:'◉',newsletter:'◈',templates:'◻',snoozed:'⏰',outbox:'↺',starred:'★'};
+const FORDER=['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
+
+const $=id=>document.getElementById(id);
+function avatarColor(s){let h=0;for(const c of(s||''))h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h]}
+function initials(s){return(s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function decodeH(s){const t=document.createElement('textarea');t.innerHTML=s||'';return t.value}
+function senderName(a){if(!a)return'';if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,'');return a.split('@')[0]}
+function timeShort(ms){
   if(!ms)return'';
-  const d=new Date(+ms), n=new Date();
-  if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if(n-d<7*864e5) return d.toLocaleDateString([],{weekday:'short'});
+  const d=new Date(+ms),n=new Date();
+  if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(n-d<7*864e5)return d.toLocaleDateString([],{weekday:'short'});
   return d.toLocaleDateString([],{month:'short',day:'numeric'});
 }
-function fL(ms){ if(!ms)return''; return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'}) }
+function timeLong(ms){if(!ms)return'';return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'})}
 
-const $ = id => document.getElementById(id);
-
-/* ── LOADER / TOAST ── */
-function load(msg){ $('gloader').style.display='flex'; $('loader-msg').textContent=msg||'Loading...' }
-function unload(){ $('gloader').style.display='none' }
-function toast(m,err=false){
-  const t=$('toast'); t.textContent=m; t.className=err?'err':''; t.style.display='block';
-  clearTimeout(t._); t._=setTimeout(()=>t.style.display='none',5000);
+function showLoad(msg){$('loader').style.display='flex';$('loader-msg').textContent=msg||'Loading...'}
+function hideLoad(){$('loader').style.display='none'}
+function showToast(msg,err=false){
+  const t=$('toast');t.textContent=msg;t.className=err?'err':'';t.style.display='block';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',5000);
 }
 
-/* ── FOLDER ICONS ── */
-const FI={ inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',archive:'◫',notification:'◉',newsletter:'◈',templates:'◻',snoozed:'◷',outbox:'↺',starred:'★' };
-const FO=['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
-
-/* ── LOAD ── */
 async function loadFolder(folder=''){
-  load(folder?`Opening ${folder}...`:'Loading mailbox...');
-  closeDrawer();
+  showLoad(folder?`Opening ${folder}...`:'Loading mailbox...');
+  closeDetail();
   try{
-    const url = folder
-      ? `${API}?folder=${encodeURIComponent(folder)}&limit=200`
-      : `${API}?limit=200`;
-    const r=await fetch(url);
+    const r=await fetch(folder?`${API}?folder=${encodeURIComponent(folder)}&limit=200`:`${API}?limit=200`);
     const d=await r.json();
     if(d.error)throw new Error(d.error);
-
-    emails  = Array.isArray(d.emails)  ? d.emails  : [];
-    folders = Array.isArray(d.folders) ? d.folders : [];
-    active  = d.activeFolder || folder || '';
-
-    const em = d.accountEmail || '';
-    $('h-email').textContent = em || 'Connected';
-    $('p-email').textContent = em;
-
-    $('s-total').textContent  = emails.length;
-    $('s-unread').textContent = emails.filter(m=>m.status==='0').length;
-    $('s-folder').textContent = active || '—';
-
+    emails=Array.isArray(d.emails)?d.emails:[];
+    folders=Array.isArray(d.folders)?d.folders:[];
+    curFolder=d.activeFolder||folder||'';
+    const em=d.accountEmail||'';
+    $('top-email').textContent=em||'Connected';
+    $('sb-email').textContent=em;
+    $('st-total').textContent=emails.length;
+    $('st-unread').textContent=emails.filter(m=>m.status==='0').length;
+    $('st-folder').textContent=curFolder||'—';
     renderFolders();
-    page=1; query=''; $('search-inp').value='';
+    curPage=1;query='';
+    $('sb-srch').value='';$('main-srch').value='';
     renderList();
-    unload();
+    hideLoad();
   }catch(e){
-    unload();
-    $('email-list').innerHTML=`<div class="empty"><div class="empty-glyph">✉</div><div class="empty-head">Could not load</div><div class="empty-sub">${esc(e.message)}<br><br>Visit <strong>/api/emails?debug=1</strong> to diagnose</div></div>`;
-    toast(e.message,true);
+    hideLoad();
+    $('email-list').innerHTML=`<div class="empty"><div class="empty-icon">⚠</div><div class="empty-title">Failed to load</div><div class="empty-desc">${esc(e.message)}<br><br>Visit <code>/api/emails?debug=1</code> to diagnose.</div></div>`;
+    showToast(e.message,true);
   }
 }
 
-/* ── FOLDERS ── */
 function renderFolders(){
-  const map={}; folders.forEach(f=>map[f.name]=f);
-  const sorted=[]; FO.forEach(n=>{if(map[n])sorted.push(map[n])}); folders.forEach(f=>{if(!FO.includes(f.name))sorted.push(f)});
+  const map={};folders.forEach(f=>map[f.name]=f);
+  const sorted=[];FORDER.forEach(n=>{if(map[n])sorted.push(map[n])});folders.forEach(f=>{if(!FORDER.includes(f.name))sorted.push(f)});
   $('folder-list').innerHTML=sorted.map(f=>{
-    const ic=FI[f.name.toLowerCase()]||'◇', on=f.name===active?'on':'', u=f.unread||0;
-    return`<button class="folder-row ${on}" onclick="sw('${esc(f.name)}',this)">
-      <span class="f-icon">${ic}</span>
-      <span class="f-name">${esc(f.name)}</span>
-      <span class="f-badge ${u===0?'z':''}">${u}</span>
+    const ic=FICONS[f.name.toLowerCase()]||'◇',on=f.name===curFolder?'active':'',u=f.unread||0;
+    return`<button class="folder-item ${on}" onclick="switchFolder('${esc(f.name)}',this)">
+      <span class="fi-icon">${ic}</span>
+      <span class="fi-name">${esc(f.name)}</span>
+      <span class="fi-count ${u===0?'z':''}">${u}</span>
     </button>`;
   }).join('');
 }
 
-function sw(name,el){
-  document.querySelectorAll('.folder-row').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
+function switchFolder(name,el){
+  document.querySelectorAll('.folder-item').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
   loadFolder(name);
 }
 
-/* ── EMAIL LIST ── */
-function filt(){
+function getFiltered(){
   if(!query)return emails;
   const q=query.toLowerCase();
-  return emails.filter(m=>dh(m.subject||'').toLowerCase().includes(q)||(m.fromAddress||m.sender||'').toLowerCase().includes(q)||(m.summary||'').toLowerCase().includes(q));
+  return emails.filter(m=>decodeH(m.subject||'').toLowerCase().includes(q)||(m.fromAddress||m.sender||'').toLowerCase().includes(q)||(m.summary||'').toLowerCase().includes(q));
 }
 
 function renderList(){
-  const list=filt(), total=list.length, s=(page-1)*PER, pg=list.slice(s,s+PER), el=$('email-list');
-  if(!pg.length){
-    el.innerHTML=`<div class="empty"><div class="empty-glyph">✉</div><div class="empty-head">${query?'No matches':'Empty folder'}</div><div class="empty-sub">${query?'Try a different search term':'No messages to display'}</div></div>`;
-    $('pager').innerHTML=''; return;
+  const list=getFiltered(),total=list.length,s=(curPage-1)*PER,page=list.slice(s,s+PER),el=$('email-list');
+  if(!page.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">${query?'🔍':'📭'}</div><div class="empty-title">${query?'No results':'Empty folder'}</div><div class="empty-desc">${query?'Try different keywords':'No messages here'}</div></div>`;
+    $('pager').innerHTML='';return;
   }
-  el.innerHTML=pg.map((m,i)=>{
-    const from=m.fromAddress||m.sender||'', n=nm(from), [fg,bg]=hue(from);
-    const u=m.status==='0', sj=dh(m.subject||'(No Subject)');
-    return`<div class="mail-item${u?' unread':''}${''}" onclick="openMail(${s+i},this)">
-      <div class="mail-av" style="background:${bg};color:${fg}">${ini(n||from)}</div>
-      <div class="mail-body">
-        <div class="mail-from">${esc(n||from||'Unknown')}</div>
-        <div class="mail-subj">${esc(sj)}</div>
-        <div class="mail-prev">${esc(m.summary||'')}</div>
+  el.innerHTML=page.map((m,i)=>{
+    const addr=m.fromAddress||m.sender||'',name=senderName(addr),{bg,fg}=avatarColor(addr);
+    const unread=m.status==='0',subj=decodeH(m.subject||'(No Subject)');
+    return`<div class="email-row${unread?' unread':''}" onclick="openEmail(${s+i},this)">
+      <div class="e-avatar" style="background:${bg};color:${fg}">${initials(name||addr)}</div>
+      <div class="e-body">
+        <div class="e-from">${esc(name||addr||'Unknown')}</div>
+        <div class="e-subject">${esc(subj)}</div>
+        <div class="e-preview">${esc(m.summary||'')}</div>
       </div>
-      <div class="mail-side">
-        <span class="mail-time">${fS(m.receivedTime||m.sentDateInGMT)}</span>
-        ${u?'<span class="mail-dot"></span>':''}
+      <div class="e-meta">
+        <span class="e-time">${timeShort(m.receivedTime||m.sentDateInGMT)}</span>
+        ${unread?'<span class="e-unread"></span>':''}
       </div>
     </div>`;
   }).join('');
@@ -679,65 +580,60 @@ function renderList(){
 }
 
 function renderPager(total){
-  const el=$('pager'), pages=Math.ceil(total/PER);
+  const el=$('pager'),pages=Math.ceil(total/PER);
   if(pages<=1){el.innerHTML='';return}
-  const W=7, s=Math.max(1,Math.min(page-3,pages-W+1)), e=Math.min(pages,s+W-1), s2=Math.max(1,e-W+1);
-  let h=`<button class="pg" onclick="gp(${page-1})" ${page===1?'disabled':''}>‹</button>`;
-  if(s2>1)h+=`<button class="pg" onclick="gp(1)">1</button><span class="pg-info">…</span>`;
-  for(let i=s2;i<=e;i++)h+=`<button class="pg${i===page?' on':''}" onclick="gp(${i})">${i}</button>`;
-  if(e<pages)h+=`<span class="pg-info">…</span><button class="pg" onclick="gp(${pages})">${pages}</button>`;
-  h+=`<button class="pg" onclick="gp(${page+1})" ${page===pages?'disabled':''}>›</button>`;
+  const W=7,s=Math.max(1,Math.min(curPage-3,pages-W+1)),e=Math.min(pages,Math.max(s+W-1,W)),s2=Math.max(1,e-W+1);
+  let h=`<button class="pg" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  if(s2>1)h+=`<button class="pg" onclick="goPage(1)">1</button><span class="pg-dots">…</span>`;
+  for(let i=s2;i<=e;i++)h+=`<button class="pg${i===curPage?' on':''}" onclick="goPage(${i})">${i}</button>`;
+  if(e<pages)h+=`<span class="pg-dots">…</span><button class="pg" onclick="goPage(${pages})">${pages}</button>`;
+  h+=`<button class="pg" onclick="goPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
   h+=`<span class="pg-info">${total} messages</span>`;
   el.innerHTML=h;
 }
 
-function gp(n){ const p=Math.ceil(filt().length/PER); if(n<1||n>p)return; page=n; renderList(); $('email-list').scrollTop=0 }
-function onSearch(){ query=$('search-inp').value; page=1; renderList() }
-function doRefresh(){ loadFolder(active) }
+function goPage(n){const p=Math.ceil(getFiltered().length/PER);if(n<1||n>p)return;curPage=n;renderList();$('email-list').scrollTop=0}
+function onSearch(v){query=v;curPage=1;$('sb-srch').value=v;$('main-srch').value=v;renderList()}
+function doRefresh(){loadFolder(curFolder)}
 
-/* ── OPEN MAIL ── */
-async function openMail(idx,el){
-  const list=filt(), m=list[idx]; if(!m)return;
-  document.querySelectorAll('.mail-item').forEach(r=>r.classList.remove('picked'));
-  el.classList.add('picked'); el.classList.remove('unread');
-  $('drawer').style.display='flex';
+async function openEmail(idx,el){
+  const list=getFiltered(),m=list[idx];if(!m)return;
+  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('selected'));
+  el.classList.add('selected');el.classList.remove('unread');
+  $('detail').style.display='flex';
 
-  const from=m.fromAddress||m.sender||'', n=nm(from), [fg,bg]=hue(from);
-  $('d-subj').textContent=dh(m.subject||'(No Subject)');
-  $('d-date').textContent=fL(m.receivedTime||m.sentDateInGMT);
+  const addr=m.fromAddress||m.sender||'',name=senderName(addr),{bg,fg}=avatarColor(addr);
+  $('d-subject').textContent=decodeH(m.subject||'(No Subject)');
+  $('d-date').textContent=timeLong(m.receivedTime||m.sentDateInGMT);
+  const av=$('d-avatar');
+  av.textContent=initials(name||addr);
+  av.style.cssText=`background:${bg};color:${fg};width:36px;height:36px;border-radius:${getComputedStyle(document.documentElement).getPropertyValue('--r2')};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0`;
+  $('d-name').textContent=name||addr;
+  $('d-from').textContent=addr;
+  $('d-to').textContent='To: '+decodeH(m.toAddress||'');
 
-  const av=$('d-av');
-  av.textContent=ini(n||from);
-  av.style.cssText=`background:${bg};color:${fg};width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;font-family:'DM Serif Display',serif`;
-
-  $('d-name').textContent=n||from;
-  $('d-addr').textContent=from;
-  $('d-to').textContent='To: '+dh(m.toAddress||'');
-
-  const bd=$('d-body');
-  bd.innerHTML='<div class="sk skl" style="width:92%"></div><div class="sk skl" style="width:78%"></div><div class="sk skl" style="width:85%"></div><div class="sk skl" style="width:58%;margin-top:20px"></div><div class="sk skl" style="width:74%"></div>';
+  const body=$('d-body');
+  body.innerHTML=`<div class="sk skl" style="width:90%"></div><div class="sk skl" style="width:75%"></div><div class="sk skl" style="width:83%"></div><div class="sk skl" style="width:55%;margin-top:18px"></div><div class="sk skl" style="width:77%"></div>`;
 
   const mid=m.messageId||m.mid||'';
-  if(!mid){ bd.textContent=m.summary||'(No message ID)'; return }
-
+  if(!mid){body.textContent=m.summary||'(No content)';return}
   try{
     const r=await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
-    const d=await r.json(); const msg=d.message||d;
+    const d=await r.json();const msg=d.message||d;
     if(msg.htmlBody){
       const fr=document.createElement('iframe');
       fr.style.cssText='width:100%;border:none;min-height:400px;background:#fff;border-radius:8px';
-      fr.srcdoc=msg.htmlBody; bd.innerHTML=''; bd.appendChild(fr);
-      fr.onload=()=>{ try{ fr.style.height=fr.contentDocument.body.scrollHeight+40+'px' }catch{} };
-    }else{ bd.textContent=msg.content||msg.body||m.summary||'(Empty)' }
-  }catch(e){ bd.textContent=m.summary||'Error: '+e.message }
+      fr.srcdoc=msg.htmlBody;body.innerHTML='';body.appendChild(fr);
+      fr.onload=()=>{try{fr.style.height=fr.contentDocument.body.scrollHeight+40+'px'}catch{}}
+    }else{body.textContent=msg.content||msg.body||m.summary||'(Empty)'}
+  }catch(e){body.textContent=m.summary||'Error: '+e.message}
 }
 
-function closeDrawer(){
-  $('drawer').style.display='none';
-  document.querySelectorAll('.mail-item').forEach(r=>r.classList.remove('picked'));
+function closeDetail(){
+  $('detail').style.display='none';
+  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('selected'));
 }
 
-/* ── INIT ── */
 loadFolder('');
 </script>
 </body>
