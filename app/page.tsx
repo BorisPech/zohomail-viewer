@@ -49,6 +49,7 @@ export default function MailPage() {
             setPendingNewEmails(brandNew)
             if (
               typeof window !== "undefined" &&
+              "Notification" in window &&
               Notification.permission === "granted"
             ) {
               const first = brandNew[0]
