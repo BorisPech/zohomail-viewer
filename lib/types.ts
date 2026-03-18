@@ -11,6 +11,7 @@ export interface Email {
   summary?: string
   content?: string
   folderId?: string
+  hasAttachment?: boolean
 }
 
 export interface Folder {
