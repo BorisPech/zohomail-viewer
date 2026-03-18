@@ -1,4 +1,4 @@
-// api/emails.js — v5 — Auto-detect default folder + fetch all
+// api/emails.js — v6 — Fast single fetch, no timeout
 
 const CLIENT_ID     = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
@@ -37,29 +37,6 @@ function getEmail(emailField) {
   return '';
 }
 
-async function fetchAllMessages(accountId, folderId, folderName, token) {
-  let all = [];
-  let start = 0;
-  const batchSize = 200;
-  while (true) {
-    let url;
-    if (folderId) {
-      url = `https://mail.zoho.com/api/accounts/${accountId}/folders/${folderId}/messages?limit=${batchSize}&start=${start}&sortorder=false`;
-    } else {
-      url = `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folder=${encodeURIComponent(folderName)}&limit=${batchSize}&start=${start}&sortorder=false`;
-    }
-    const r = await fetch(url, { headers: { Authorization: `Zoho-oauthtoken ${token}` } });
-    const d = await r.json();
-    const batch = Array.isArray(d?.data) ? d.data : [];
-    if (!batch.length) break;
-    all = all.concat(batch);
-    start += batch.length;
-    if (batch.length < batchSize) break;
-    if (all.length >= 2000) break;
-  }
-  return all;
-}
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -95,62 +72,52 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: d.data || d, accountEmail });
     }
 
-    // 3. Get folders with unread counts
-    const fRes    = await fetch(`https://mail.zoho.com/api/accounts/${accountId}/folders`, {
+    // 3. Get folders
+    const fRes  = await fetch(`https://mail.zoho.com/api/accounts/${accountId}/folders`, {
       headers: { Authorization: `Zoho-oauthtoken ${token}` },
     });
-    const fData   = await fRes.json();
-    const folders = Array.isArray(fData?.data) ? fData.data : Array.isArray(fData) ? fData : [];
+    const fData = await fRes.json();
+    const folders = Array.isArray(fData?.data) ? fData.data : [];
 
     const folderList = folders.map(f => ({
       id:     f.folderId || f.id || '',
       name:   f.folderName || f.name || '',
-      unread: parseInt(f.unreadCount || f.unread || 0),
-      total:  parseInt(f.messageCount || f.total || 0),
+      unread: parseInt(f.unreadCount || 0),
+      total:  parseInt(f.messageCount || 0),
     }));
 
-    // 4. Find requested folder — default to first folder that has messages
-    const requestedFolder = req.query.folder || '';
-    let targetFolder;
+    // 4. Find target folder
+    const requestedFolder = req.query.folder || 'Notification';
+    const start  = parseInt(req.query.start) || 0;
+    const limit  = Math.min(parseInt(req.query.limit) || 200, 200);
 
-    if (requestedFolder) {
-      targetFolder = folderList.find(f => f.name.toLowerCase() === requestedFolder.toLowerCase());
-    }
+    const targetFolder = folderList.find(f => f.name.toLowerCase() === requestedFolder.toLowerCase())
+      || folderList.find(f => f.total > 0)
+      || folderList[0];
 
-    // If no folder requested or not found, find first folder with messages
-    if (!targetFolder) {
-      // Try Inbox first, then any folder with total > 0
-      targetFolder = folderList.find(f => f.name.toLowerCase() === 'inbox') || folderList.find(f => f.total > 0) || folderList[0];
-    }
-
-    const folderName = targetFolder?.name || 'Inbox';
+    const folderName = targetFolder?.name || requestedFolder;
     const folderId   = targetFolder?.id;
 
-    // 5. Fetch ALL emails
-    let emails = await fetchAllMessages(accountId, folderId, folderName, token);
+    // 5. Fetch messages — single request
+    const msgUrl = folderId
+      ? `https://mail.zoho.com/api/accounts/${accountId}/folders/${folderId}/messages?limit=${limit}&start=${start}&sortorder=false`
+      : `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folder=${encodeURIComponent(folderName)}&limit=${limit}&start=${start}&sortorder=false`;
 
-    // If empty, try fetching each folder to find where emails are
-    if (!emails.length) {
-      for (const f of folderList) {
-        if (!f.id) continue;
-        const test = await fetchAllMessages(accountId, f.id, f.name, token);
-        if (test.length > 0) {
-          emails = test;
-          targetFolder = f;
-          break;
-        }
-      }
-    }
+    const mRes  = await fetch(msgUrl, { headers: { Authorization: `Zoho-oauthtoken ${token}` } });
+    const mData = await mRes.json();
+    const emails = Array.isArray(mData?.data) ? mData.data : [];
 
-    // Update folder unread counts from actual data
-    const actualUnread = emails.filter(m => m.status === '0').length;
+    // Total count from folder info
+    const totalCount = targetFolder?.total || emails.length;
 
     return res.status(200).json({
       emails,
       folders: folderList,
       accountEmail,
-      total:        emails.length,
-      activeFolder: targetFolder?.name || folderName,
+      total:        totalCount,
+      fetched:      emails.length,
+      activeFolder: folderName,
+      start,
     });
 
   } catch (err) {
