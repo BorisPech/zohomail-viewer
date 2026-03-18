@@ -6,356 +6,689 @@
 <title>ZohoMail Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#080810;--s1:#0e0e1c;--s2:#14142a;--s3:#1a1a35;--border:#ffffff0a;--border2:#ffffff14;--accent:#7c6ef7;--a2:#f76e8a;--a3:#4ecca3;--text:#e2e2f0;--sub:#8888a8;--muted:#4a4a6a;--unread:#7c6ef712;--unread-b:#7c6ef7}
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
-body::before{content:'';position:fixed;top:-250px;left:-150px;width:600px;height:600px;background:radial-gradient(circle,#7c6ef70d,transparent 65%);pointer-events:none;z-index:0}
-body::after{content:'';position:fixed;bottom:-250px;right:-150px;width:500px;height:500px;background:radial-gradient(circle,#f76e8a0a,transparent 65%);pointer-events:none;z-index:0}
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:      #080810;
+  --s1:      #0e0e1c;
+  --s2:      #14142a;
+  --s3:      #1a1a35;
+  --border:  #ffffff0a;
+  --border2: #ffffff16;
+  --accent:  #7c6ef7;
+  --a2:      #f76e8a;
+  --a3:      #4ecca3;
+  --text:    #e2e2f0;
+  --sub:     #8888a8;
+  --muted:   #4a4a6a;
+  --unread-bg:     #7c6ef712;
+  --unread-border: #7c6ef7;
+}
+* { margin:0; padding:0; box-sizing:border-box }
+html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif }
 
-.hdr{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#080810cc;backdrop-filter:blur(16px);border-bottom:1px solid var(--border2);position:relative;z-index:10;flex-shrink:0}
-.hdr-logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.hdr-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;background:linear-gradient(90deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hdr-space{flex:1}
-.hdr-badge{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;background:var(--s2);border:1px solid var(--border2);font-size:12px;color:var(--sub)}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--a3);box-shadow:0 0 5px var(--a3);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* ambient glows */
+body::before { content:''; position:fixed; top:-250px; left:-150px; width:600px; height:600px; background:radial-gradient(circle,#7c6ef70d,transparent 65%); pointer-events:none; z-index:0 }
+body::after  { content:''; position:fixed; bottom:-250px; right:-150px; width:500px; height:500px; background:radial-gradient(circle,#f76e8a0a,transparent 65%); pointer-events:none; z-index:0 }
 
-.layout{flex:1;display:grid;grid-template-columns:220px 1fr;overflow:hidden;position:relative;z-index:1;height:calc(100vh - 56px)}
-.sb{background:var(--s1);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;padding:8px 0}
-.sb-label{padding:10px 14px 4px;font-size:10px;font-weight:600;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase}
-.fi{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;border-left:3px solid transparent;transition:.15s;margin:1px 6px 1px 0;border-radius:0 8px 8px 0}
-.fi:hover{background:var(--s2)}
-.fi.on{background:var(--unread);border-left-color:var(--accent);color:var(--accent)}
-.fi .ic{font-size:14px;flex-shrink:0;width:18px;text-align:center}
-.fi .nm{flex:1;font-size:13px}
-.fi .ct{font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:var(--accent);color:#fff;min-width:20px;text-align:center}
-.fi .ct.z{background:var(--s3);color:var(--muted)}
-.sb-div{height:1px;background:var(--border);margin:8px 12px}
-.sb-bottom{margin-top:auto;padding:12px 14px;border-top:1px solid var(--border)}
-.sb-el{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
-.sb-em{font-size:11px;color:var(--sub);word-break:break-all;line-height:1.5}
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+.hdr {
+  height:56px; display:flex; align-items:center; gap:12px; padding:0 20px;
+  background:#080810cc; backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border2); position:relative; z-index:10; flex-shrink:0;
+}
+.hdr-logo {
+  width:32px; height:32px; border-radius:9px; flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--a2));
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.hdr-title {
+  font-family:'Syne',sans-serif; font-size:16px; font-weight:800;
+  background:linear-gradient(90deg,var(--text),var(--accent));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.hdr-space { flex:1 }
+.hdr-badge {
+  display:flex; align-items:center; gap:6px; padding:4px 14px;
+  border-radius:20px; background:var(--s2); border:1px solid var(--border2);
+  font-size:12px; color:var(--sub);
+}
+.live-dot {
+  width:6px; height:6px; border-radius:50%; background:var(--a3);
+  box-shadow:0 0 6px var(--a3); animation:blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-.main{display:flex;flex-direction:column;overflow:hidden}
-.bar{padding:10px 16px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border);background:var(--s1);flex-shrink:0}
-.srch{flex:1;position:relative}
-.srch input{width:100%;padding:8px 12px 8px 34px;background:var(--s2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:.15s}
-.srch input:focus{border-color:var(--accent)}
-.srch input::placeholder{color:var(--muted)}
-.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted)}
-.tbtn{padding:8px 13px;border-radius:10px;background:var(--s2);border:1px solid var(--border);color:var(--sub);font-size:12px;cursor:pointer;transition:.15s;white-space:nowrap;font-family:'Inter',sans-serif}
-.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.layout {
+  flex:1; display:grid; grid-template-columns:230px 1fr;
+  overflow:hidden; position:relative; z-index:1; height:calc(100vh - 56px);
+}
 
-.stats{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.stat{flex:1;padding:9px 16px;display:flex;align-items:center;gap:8px;background:var(--s1)}
-.stat+.stat{border-left:1px solid var(--border)}
-.sv{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
-.sl{font-size:11px;color:var(--muted)}
-.sd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sb {
+  background:var(--s1); border-right:1px solid var(--border);
+  overflow-y:auto; display:flex; flex-direction:column; padding:8px 0;
+}
+.sb-label { padding:10px 16px 4px; font-size:10px; font-weight:600; letter-spacing:2px; color:var(--muted); text-transform:uppercase }
+.fi {
+  display:flex; align-items:center; gap:9px; padding:9px 14px;
+  cursor:pointer; border-left:3px solid transparent; transition:.15s;
+  margin:1px 8px 1px 0; border-radius:0 8px 8px 0;
+}
+.fi:hover { background:var(--s2) }
+.fi.on    { background:var(--unread-bg); border-left-color:var(--accent); color:var(--accent) }
+.fi .ic   { font-size:14px; flex-shrink:0; width:18px; text-align:center }
+.fi .nm   { flex:1; font-size:13px }
+.fi .ct   { font-size:11px; font-weight:700; padding:1px 7px; border-radius:20px; background:var(--accent); color:#fff; min-width:22px; text-align:center }
+.fi .ct.z { background:var(--s3); color:var(--muted) }
+.sb-div   { height:1px; background:var(--border); margin:8px 14px }
+.sb-foot  { margin-top:auto; padding:12px 16px; border-top:1px solid var(--border) }
+.sb-foot-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px }
+.sb-foot-em  { font-size:11px; color:var(--sub); word-break:break-all; line-height:1.5 }
 
-.list-wrap{flex:1;overflow-y:auto}
-.ei{display:grid;grid-template-columns:40px 1fr auto;gap:9px;align-items:start;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.13s}
-.ei:hover{background:var(--s2)}
-.ei.unread{background:var(--unread);border-left:3px solid var(--unread-b)}
-.ei.sel{background:var(--s3)}
-.eav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;flex-shrink:0}
-.eb{min-width:0}
-.efr{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.ei:not(.unread) .efr{color:var(--sub);font-weight:400}
-.esj{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
-.ei.unread .esj{color:var(--text);font-weight:500}
-.ei:not(.unread) .esj{color:var(--muted)}
-.epv{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.em{text-align:right;flex-shrink:0}
-.et{font-size:10px;color:var(--muted);margin-bottom:4px}
-.eu{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+/* ═══════════════════════════════════════════
+   MAIN PANEL
+═══════════════════════════════════════════ */
+.main { display:flex; flex-direction:column; overflow:hidden }
 
-.empty{padding:60px 20px;text-align:center}
-.empty-ic{font-size:40px;margin-bottom:12px;opacity:.4}
-.empty-t{font-family:'Syne',sans-serif;font-size:17px;margin-bottom:6px}
-.empty-s{font-size:13px;color:var(--muted);line-height:1.6}
+/* toolbar */
+.bar {
+  padding:10px 18px; display:flex; gap:8px; align-items:center;
+  border-bottom:1px solid var(--border); background:var(--s1); flex-shrink:0;
+}
+.srch { flex:1; position:relative }
+.srch input {
+  width:100%; padding:8px 14px 8px 36px; background:var(--s2);
+  border:1px solid var(--border); border-radius:10px; color:var(--text);
+  font-size:13px; font-family:'Inter',sans-serif; outline:none; transition:.15s;
+}
+.srch input:focus { border-color:var(--accent) }
+.srch input::placeholder { color:var(--muted) }
+.srch-ic { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--muted) }
+.tbtn {
+  padding:8px 14px; border-radius:10px; background:var(--s2); border:1px solid var(--border);
+  color:var(--sub); font-size:12px; cursor:pointer; transition:.15s; white-space:nowrap;
+  font-family:'Inter',sans-serif; display:flex; align-items:center; gap:5px;
+}
+.tbtn:hover { border-color:var(--accent); color:var(--accent) }
 
-.pagi{padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:5px;border-top:1px solid var(--border);background:var(--s1);flex-shrink:0}
-.pp{width:30px;height:30px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:.13s}
-.pp:hover,.pp.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.pp:disabled{opacity:.3;cursor:default;pointer-events:none}
-.pi{font-size:12px;color:var(--muted);padding:0 6px}
+/* stats bar */
+.stats { display:flex; border-bottom:1px solid var(--border); flex-shrink:0 }
+.stat  { flex:1; padding:9px 18px; display:flex; align-items:center; gap:8px; background:var(--s1) }
+.stat + .stat { border-left:1px solid var(--border) }
+.stat-v { font-family:'Syne',sans-serif; font-size:20px; font-weight:800 }
+.stat-l { font-size:11px; color:var(--muted) }
+.stat-d { width:7px; height:7px; border-radius:50%; flex-shrink:0 }
 
-.det{position:fixed;top:56px;right:0;width:54vw;max-width:820px;height:calc(100vh - 56px);background:var(--s1);border-left:1px solid var(--border2);display:none;flex-direction:column;z-index:20;animation:si .2s ease}
-@keyframes si{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
-.dh{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;flex-shrink:0}
-.dcl{width:28px;height:28px;border-radius:7px;background:var(--s2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;flex-shrink:0;transition:.13s}
-.dcl:hover{border-color:var(--a2);color:var(--a2)}
-.dsj{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;line-height:1.3;margin-bottom:2px}
-.ddt{font-size:11px;color:var(--muted)}
-.dme{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:10px;background:var(--s2);flex-shrink:0}
-.dav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0}
-.dfn{font-size:13px;font-weight:500;margin-bottom:2px}
-.dfe{font-size:11px;color:var(--muted)}
-.dto{font-size:11px;color:var(--muted);margin-top:1px}
-.dac{padding:8px 20px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0}
-.dab{padding:5px 11px;border-radius:8px;background:var(--s2);border:1px solid var(--border);color:var(--sub);font-size:11px;cursor:pointer;transition:.13s;font-family:'Inter',sans-serif}
-.dab:hover{border-color:var(--accent);color:var(--accent)}
-.dbody{flex:1;overflow-y:auto;padding:20px}
-.dbody-txt{font-size:13px;line-height:1.9;color:#cccce0;white-space:pre-wrap;word-break:break-word}
+/* email list */
+.list-wrap { flex:1; overflow-y:auto }
+.ei {
+  display:grid; grid-template-columns:42px 1fr auto; gap:10px; align-items:start;
+  padding:12px 18px; border-bottom:1px solid var(--border); cursor:pointer; transition:.13s;
+}
+.ei:hover   { background:var(--s2) }
+.ei.unread  { background:var(--unread-bg); border-left:3px solid var(--unread-border) }
+.ei.sel     { background:var(--s3) }
+.e-av { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; flex-shrink:0 }
+.e-body { min-width:0 }
+.e-from { font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px }
+.ei:not(.unread) .e-from { color:var(--sub); font-weight:400 }
+.e-subj { font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px }
+.ei.unread .e-subj { color:var(--text); font-weight:500 }
+.ei:not(.unread) .e-subj { color:var(--muted) }
+.e-prev { font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.e-meta { text-align:right; flex-shrink:0 }
+.e-time { font-size:10px; color:var(--muted); margin-bottom:5px }
+.e-dot  { width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block }
 
-#ldr{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:999}
-.ring{width:40px;height:40px;border:2.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.ldt{font-size:13px;color:var(--sub)}
+/* empty state */
+.empty { padding:60px 20px; text-align:center }
+.empty-ic { font-size:44px; margin-bottom:14px; opacity:.4 }
+.empty-t  { font-family:'Syne',sans-serif; font-size:18px; margin-bottom:8px }
+.empty-s  { font-size:13px; color:var(--muted); line-height:1.7 }
 
-.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200%;animation:shim 1.1s infinite;border-radius:5px}
-@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skl{height:10px;margin-bottom:7px}
+/* pagination */
+.pagi {
+  padding:10px 18px; display:flex; align-items:center; justify-content:center; gap:5px;
+  border-top:1px solid var(--border); background:var(--s1); flex-shrink:0;
+}
+.pp {
+  width:30px; height:30px; border-radius:8px; background:var(--s2);
+  border:1px solid var(--border); color:var(--text); cursor:pointer;
+  font-size:12px; display:flex; align-items:center; justify-content:center; transition:.13s;
+}
+.pp:hover, .pp.on { background:var(--accent); border-color:var(--accent); color:#fff }
+.pp:disabled { opacity:.3; cursor:default; pointer-events:none }
+.pagi-info { font-size:12px; color:var(--muted); padding:0 8px }
 
-#toast{position:fixed;bottom:18px;right:18px;background:var(--s2);border:1px solid var(--border2);border-left:3px solid var(--a3);padding:11px 16px;border-radius:10px;font-size:12px;color:var(--text);box-shadow:0 8px 24px #00000055;z-index:9999;display:none}
-#toast.err{border-left-color:var(--a2)}
+/* ═══════════════════════════════════════════
+   DETAIL PANEL (right slide-in)
+═══════════════════════════════════════════ */
+.det {
+  position:fixed; top:56px; right:0; width:54vw; max-width:820px;
+  height:calc(100vh - 56px); background:var(--s1); border-left:1px solid var(--border2);
+  display:none; flex-direction:column; z-index:20; animation:slide-in .2s ease;
+}
+@keyframes slide-in { from{transform:translateX(24px);opacity:0} to{transform:none;opacity:1} }
 
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-@media(max-width:700px){.layout{grid-template-columns:1fr}.sb{display:none}.det{width:100vw}.stats{display:none}}
+.det-hdr {
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  display:flex; gap:12px; align-items:flex-start; flex-shrink:0;
+}
+.det-close {
+  width:28px; height:28px; border-radius:7px; background:var(--s2); border:1px solid var(--border);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--muted); font-size:14px; flex-shrink:0; transition:.13s;
+}
+.det-close:hover { border-color:var(--a2); color:var(--a2) }
+.det-subj { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; line-height:1.3; margin-bottom:3px }
+.det-date { font-size:11px; color:var(--muted) }
+
+.det-meta {
+  padding:12px 20px; border-bottom:1px solid var(--border);
+  display:flex; gap:10px; background:var(--s2); flex-shrink:0;
+}
+.det-av  { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:14px; flex-shrink:0 }
+.det-name { font-size:13px; font-weight:500; margin-bottom:2px }
+.det-addr { font-size:11px; color:var(--muted) }
+.det-to   { font-size:11px; color:var(--muted); margin-top:2px }
+
+.det-acts { padding:8px 20px; border-bottom:1px solid var(--border); display:flex; gap:6px; flex-shrink:0 }
+.det-btn {
+  padding:5px 12px; border-radius:8px; background:var(--s2); border:1px solid var(--border);
+  color:var(--sub); font-size:11px; cursor:pointer; transition:.13s; font-family:'Inter',sans-serif;
+}
+.det-btn:hover { border-color:var(--accent); color:var(--accent) }
+
+.det-body { flex:1; overflow-y:auto; padding:20px }
+.det-body-txt { font-size:13px; line-height:1.9; color:#cccce0; white-space:pre-wrap; word-break:break-word }
+
+/* ═══════════════════════════════════════════
+   LOADER
+═══════════════════════════════════════════ */
+#loader {
+  position:fixed; inset:0; background:var(--bg); display:flex;
+  align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:999;
+}
+.loader-ring {
+  width:42px; height:42px; border:2.5px solid var(--border2);
+  border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.loader-txt { font-size:13px; color:var(--sub) }
+
+/* skeleton loading */
+.sk { background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%); background-size:200%; animation:shim 1.1s infinite; border-radius:5px }
+@keyframes shim { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.sk-line { height:11px; margin-bottom:8px }
+
+/* toast */
+#toast {
+  position:fixed; bottom:20px; right:20px; background:var(--s2); border:1px solid var(--border2);
+  border-left:3px solid var(--a3); padding:12px 18px; border-radius:10px;
+  font-size:12px; color:var(--text); box-shadow:0 8px 24px #00000066; z-index:9999; display:none;
+}
+#toast.err { border-left-color:var(--a2) }
+
+/* scrollbar */
+::-webkit-scrollbar { width:4px }
+::-webkit-scrollbar-track { background:transparent }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px }
+
+/* responsive */
+@media(max-width:768px) {
+  .layout { grid-template-columns:1fr }
+  .sb     { display:none }
+  .det    { width:100vw }
+  .stats  { display:none }
+}
 </style>
 </head>
 <body>
 
-<div id="ldr"><div class="ring"></div><div class="ldt" id="ldt">Connecting...</div></div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-txt" id="loader-txt">Connecting to Zoho Mail...</div>
+</div>
 
+<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-logo">✉</div>
   <div class="hdr-title">ZohoMail Viewer</div>
   <div class="hdr-space"></div>
-  <div class="hdr-badge"><span class="dot"></span><span id="hdr-em">Loading...</span></div>
+  <div class="hdr-badge">
+    <span class="live-dot"></span>
+    <span id="hdr-email">Loading...</span>
+  </div>
 </div>
 
+<!-- LAYOUT -->
 <div class="layout">
+
+  <!-- SIDEBAR -->
   <div class="sb">
     <div class="sb-label">Folders</div>
-    <div id="fl"></div>
+    <div id="folder-list"></div>
     <div class="sb-div"></div>
-    <div class="sb-bottom">
-      <div class="sb-el">Account</div>
-      <div class="sb-em" id="sb-em">—</div>
+    <div class="sb-foot">
+      <div class="sb-foot-lbl">Account</div>
+      <div class="sb-foot-em" id="sb-email">—</div>
     </div>
   </div>
+
+  <!-- MAIN -->
   <div class="main">
+
+    <!-- toolbar -->
     <div class="bar">
-      <div class="srch"><span class="si">🔍</span><input type="text" id="srch" placeholder="Search messages..." oninput="doSearch()"></div>
+      <div class="srch">
+        <span class="srch-ic">🔍</span>
+        <input type="text" id="search-input" placeholder="Search messages..." oninput="onSearch()">
+      </div>
       <button class="tbtn" onclick="refresh()">↻ Refresh</button>
     </div>
+
+    <!-- stats -->
     <div class="stats">
-      <div class="stat"><div class="sd" style="background:var(--accent)"></div><div><div class="sv" id="sv-t">—</div><div class="sl">Total</div></div></div>
-      <div class="stat"><div class="sd" style="background:var(--a2)"></div><div><div class="sv" id="sv-u">—</div><div class="sl">Unread</div></div></div>
-      <div class="stat"><div class="sd" style="background:var(--a3)"></div><div><div class="sv" id="sv-f" style="font-size:13px;padding-top:3px">—</div><div class="sl">Folder</div></div></div>
+      <div class="stat">
+        <div class="stat-d" style="background:var(--accent)"></div>
+        <div><div class="stat-v" id="stat-total">—</div><div class="stat-l">Total</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-d" style="background:var(--a2)"></div>
+        <div><div class="stat-v" id="stat-unread">—</div><div class="stat-l">Unread</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-d" style="background:var(--a3)"></div>
+        <div>
+          <div class="stat-v" id="stat-folder" style="font-size:13px;padding-top:3px">—</div>
+          <div class="stat-l">Folder</div>
+        </div>
+      </div>
     </div>
-    <div class="list-wrap" id="list"></div>
-    <div class="pagi" id="pagi"></div>
+
+    <!-- email list -->
+    <div class="list-wrap" id="email-list"></div>
+    <div class="pagi" id="pagination"></div>
+
   </div>
 </div>
 
-<div class="det" id="det">
-  <div class="dh">
-    <button class="dcl" onclick="closeDet()">✕</button>
-    <div style="flex:1;min-width:0"><div class="dsj" id="d-sj">—</div><div class="ddt" id="d-dt"></div></div>
+<!-- DETAIL PANEL -->
+<div class="det" id="detail-panel">
+  <div class="det-hdr">
+    <button class="det-close" onclick="closeDetail()">✕</button>
+    <div style="flex:1;min-width:0">
+      <div class="det-subj" id="d-subject">—</div>
+      <div class="det-date" id="d-date"></div>
+    </div>
   </div>
-  <div class="dme">
-    <div class="dav" id="d-av">?</div>
-    <div><div class="dfn" id="d-fn"></div><div class="dfe" id="d-fe"></div><div class="dto" id="d-to"></div></div>
+  <div class="det-meta">
+    <div class="det-av" id="d-avatar">?</div>
+    <div>
+      <div class="det-name" id="d-name"></div>
+      <div class="det-addr" id="d-from"></div>
+      <div class="det-to"   id="d-to"></div>
+    </div>
   </div>
-  <div class="dac">
-    <button class="dab">↩ Reply</button>
-    <button class="dab">→ Forward</button>
-    <button class="dab">⬇ Download</button>
+  <div class="det-acts">
+    <button class="det-btn">↩ Reply</button>
+    <button class="det-btn">→ Forward</button>
+    <button class="det-btn">⬇ Download</button>
   </div>
-  <div class="dbody"><div id="d-bd" class="dbody-txt"></div></div>
+  <div class="det-body">
+    <div id="d-body" class="det-body-txt"></div>
+  </div>
 </div>
+
 <div id="toast"></div>
 
 <script>
-const API='/api/emails';
-const COLORS=['#7c6ef7','#f76e8a','#4ecca3','#f9a825','#29b6f6','#ab47bc','#ef5350','#26a69a'];
-const FICONS={inbox:'📥',sent:'📤',drafts:'📝',spam:'🚫',trash:'🗑️',archive:'📦',notification:'🔔',newsletter:'📰',templates:'📋',snoozed:'😴',outbox:'📬',starred:'⭐'};
+/* ═══════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════ */
+const API      = '/api/emails';
+const PER_PAGE = 30; // client-side display pagination
 
-// State
-let emails=[], folderList=[];
-let curFolder='', curPage=1, totalEmails=0, searchQ='';
-const PER=30; // client-side page size for display
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let allEmails  = [];   // all fetched from API
+let folderList = [];
+let curFolder  = '';
+let curPage    = 1;
+let searchQ    = '';
+let totalCount = 0;    // total in folder (from API)
 
-function col(s){let h=0;for(let c of(s||''))h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h]}
-function ini(s){return(s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function dh(s){const t=document.createElement('textarea');t.innerHTML=s||'';return t.value}
-function fmtT(ms){if(!ms)return'';const d=new Date(Number(ms)),n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<7*864e5)return d.toLocaleDateString([],{weekday:'short'});return d.toLocaleDateString([],{month:'short',day:'numeric'})}
-function fmtF(ms){if(!ms)return'';return new Date(Number(ms)).toLocaleString([],{dateStyle:'medium',timeStyle:'short'})}
-function setLoad(v,msg){document.getElementById('ldr').style.display=v?'flex':'none';if(msg)document.getElementById('ldt').textContent=msg}
-function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className=err?'err':'';t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4000)}
+/* ═══════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════ */
+const COLORS = ['#7c6ef7','#f76e8a','#4ecca3','#f9a825','#29b6f6','#ab47bc','#ef5350','#26a69a'];
+const FOLDER_ICONS = {
+  inbox:'📥', sent:'📤', drafts:'📝', spam:'🚫', trash:'🗑️',
+  archive:'📦', notification:'🔔', newsletter:'📰',
+  templates:'📋', snoozed:'😴', outbox:'📬', starred:'⭐',
+};
+const FOLDER_ORDER = ['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
 
-async function loadEmails(folder=''){
-  setLoad(true,`Loading ${folder||'emails'}...`);
-  closeDet();
-  try{
-    const url=folder?`${API}?folder=${encodeURIComponent(folder)}&limit=200`:`${API}?limit=200`;
-    const r=await fetch(url);
-    const d=await r.json();
-    if(d.error)throw new Error(d.error);
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function avatarColor(s) {
+  let h = 0;
+  for (const c of (s || '')) h = (h * 31 + c.charCodeAt(0)) % COLORS.length;
+  return COLORS[h];
+}
+function initials(s) {
+  return (s || '?').split(/[\s@]+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+}
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function decodeHtml(s) {
+  const t = document.createElement('textarea');
+  t.innerHTML = s || '';
+  return t.value;
+}
+function fmtTime(ms) {
+  if (!ms) return '';
+  const d = new Date(Number(ms)), n = new Date();
+  if (d.toDateString() === n.toDateString()) return d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  if (n - d < 7 * 864e5) return d.toLocaleDateString([], { weekday:'short' });
+  return d.toLocaleDateString([], { month:'short', day:'numeric' });
+}
+function fmtFull(ms) {
+  if (!ms) return '';
+  return new Date(Number(ms)).toLocaleString([], { dateStyle:'medium', timeStyle:'short' });
+}
+function parseName(fromAddr) {
+  if (!fromAddr) return '';
+  if (fromAddr.includes('<')) return fromAddr.split('<')[0].trim().replace(/"/g, '');
+  return fromAddr.split('@')[0];
+}
 
-    emails=Array.isArray(d.emails)?d.emails:[];
-    folderList=Array.isArray(d.folders)?d.folders:[];
-    curFolder=d.activeFolder||folder||'';
-    totalEmails=d.total||emails.length;
+/* ═══════════════════════════════════════════
+   LOADER / TOAST
+═══════════════════════════════════════════ */
+function showLoader(msg) {
+  document.getElementById('loader').style.display = 'flex';
+  document.getElementById('loader-txt').textContent = msg || 'Loading...';
+}
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+}
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = isErr ? 'err' : '';
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.display = 'none', 4000);
+}
 
-    document.getElementById('hdr-em').textContent=d.accountEmail||'Connected';
-    document.getElementById('sb-em').textContent=d.accountEmail||'';
-    document.getElementById('sv-f').textContent=curFolder;
-    document.getElementById('sv-t').textContent=totalEmails;
-    document.getElementById('sv-u').textContent=emails.filter(m=>m.status==='0').length;
+/* ═══════════════════════════════════════════
+   LOAD EMAILS
+═══════════════════════════════════════════ */
+async function loadEmails(folder = '') {
+  showLoader(`Loading ${folder || 'emails'}...`);
+  closeDetail();
+  try {
+    const url = folder
+      ? `${API}?folder=${encodeURIComponent(folder)}&limit=200`
+      : `${API}?limit=200`;
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (d.error) throw new Error(d.error);
+
+    allEmails  = Array.isArray(d.emails)  ? d.emails  : [];
+    folderList = Array.isArray(d.folders) ? d.folders : [];
+    curFolder  = d.activeFolder || folder || '';
+    totalCount = d.total || allEmails.length;
+
+    // Update header + sidebar
+    const email = d.accountEmail || '';
+    document.getElementById('hdr-email').textContent = email || 'Connected';
+    document.getElementById('sb-email').textContent  = email;
+
+    // Update stats
+    document.getElementById('stat-total').textContent  = totalCount;
+    document.getElementById('stat-unread').textContent = allEmails.filter(m => m.status === '0').length;
+    document.getElementById('stat-folder').textContent = curFolder;
 
     renderFolders();
-    curPage=1;searchQ='';
-    document.getElementById('srch').value='';
+
+    // Reset UI
+    curPage = 1;
+    searchQ = '';
+    document.getElementById('search-input').value = '';
     renderList();
-    setLoad(false);
-  }catch(e){
-    setLoad(false);
-    document.getElementById('list').innerHTML=`<div class="empty"><div class="empty-ic">⚠️</div><div class="empty-t">Failed to load</div><div class="empty-s">${esc(e.message)}</div></div>`;
-    toast(e.message,true);
+    hideLoader();
+
+  } catch (err) {
+    hideLoader();
+    document.getElementById('email-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-ic">⚠️</div>
+        <div class="empty-t">Failed to load</div>
+        <div class="empty-s">${esc(err.message)}<br><br>
+          Check Vercel → Logs for details.<br>
+          Or visit <strong>/api/emails</strong> directly to debug.
+        </div>
+      </div>`;
+    showToast(err.message, true);
   }
 }
 
-function renderFolders(){
-  const order=['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
-  const map={};folderList.forEach(f=>map[f.name]=f);
-  const sorted=[];
-  order.forEach(n=>{if(map[n])sorted.push(map[n])});
-  folderList.forEach(f=>{if(!order.includes(f.name))sorted.push(f)});
-  document.getElementById('fl').innerHTML=sorted.map(f=>{
-    const ic=FICONS[f.name.toLowerCase()]||'📁';
-    const on=f.name===curFolder?'on':'';
-    const u=f.unread||0;
-    return`<div class="fi ${on}" onclick="switchFolder('${esc(f.name)}',this)">
-      <span class="ic">${ic}</span><span class="nm">${esc(f.name)}</span>
-      <span class="ct ${u===0?'z':''}">${u}</span></div>`;
+/* ═══════════════════════════════════════════
+   RENDER FOLDERS
+═══════════════════════════════════════════ */
+function renderFolders() {
+  const map = {};
+  folderList.forEach(f => map[f.name] = f);
+
+  const sorted = [];
+  FOLDER_ORDER.forEach(n => { if (map[n]) sorted.push(map[n]); });
+  folderList.forEach(f => { if (!FOLDER_ORDER.includes(f.name)) sorted.push(f); });
+
+  document.getElementById('folder-list').innerHTML = sorted.map(f => {
+    const ic  = FOLDER_ICONS[f.name.toLowerCase()] || '📁';
+    const on  = f.name === curFolder ? 'on' : '';
+    const cnt = f.unread || 0;
+    return `<div class="fi ${on}" onclick="switchFolder('${esc(f.name)}', this)">
+      <span class="ic">${ic}</span>
+      <span class="nm">${esc(f.name)}</span>
+      <span class="ct ${cnt === 0 ? 'z' : ''}">${cnt}</span>
+    </div>`;
   }).join('');
 }
 
-function switchFolder(name,el){
-  document.querySelectorAll('.fi').forEach(f=>f.classList.remove('on'));
+function switchFolder(name, el) {
+  document.querySelectorAll('.fi').forEach(f => f.classList.remove('on'));
   el.classList.add('on');
   loadEmails(name);
 }
 
-function getFiltered(){
-  if(!searchQ)return emails;
-  const q=searchQ.toLowerCase();
-  return emails.filter(m=>{
-    return dh(m.subject||'').toLowerCase().includes(q)||
-      (m.fromAddress||m.sender||'').toLowerCase().includes(q)||
-      (m.summary||'').toLowerCase().includes(q);
-  });
+/* ═══════════════════════════════════════════
+   RENDER EMAIL LIST
+═══════════════════════════════════════════ */
+function getFiltered() {
+  if (!searchQ) return allEmails;
+  const q = searchQ.toLowerCase();
+  return allEmails.filter(m =>
+    decodeHtml(m.subject || '').toLowerCase().includes(q) ||
+    (m.fromAddress || m.sender || '').toLowerCase().includes(q) ||
+    (m.summary || '').toLowerCase().includes(q)
+  );
 }
 
-function renderList(){
-  const filtered=getFiltered();
-  const total=filtered.length;
-  const sl=(curPage-1)*PER;
-  const page=filtered.slice(sl,sl+PER);
-  const list=document.getElementById('list');
-  if(!page.length){
-    list.innerHTML=`<div class="empty"><div class="empty-ic">📭</div><div class="empty-t">No messages</div><div class="empty-s">${searchQ?'Try different keywords':'This folder is empty'}</div></div>`;
-    document.getElementById('pagi').innerHTML='';return;
+function renderList() {
+  const filtered = getFiltered();
+  const total    = filtered.length;
+  const start    = (curPage - 1) * PER_PAGE;
+  const page     = filtered.slice(start, start + PER_PAGE);
+  const listEl   = document.getElementById('email-list');
+
+  if (!page.length) {
+    listEl.innerHTML = `
+      <div class="empty">
+        <div class="empty-ic">📭</div>
+        <div class="empty-t">No messages</div>
+        <div class="empty-s">${searchQ ? 'Try different keywords' : 'This folder is empty'}</div>
+      </div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
   }
-  list.innerHTML=page.map((m,i)=>{
-    const from=m.fromAddress||m.sender||'';
-    const name=from.includes('<')?from.split('<')[0].trim().replace(/"/g,''):from.split('@')[0];
-    const c=col(from);
-    const unread=m.status==='0';
-    const subj=dh(m.subject||'(No Subject)');
-    return`<div class="ei ${unread?'unread':''}" onclick="openMsg(${sl+i},this)">
-      <div class="eav" style="background:${c}18;color:${c}">${ini(name||from)}</div>
-      <div class="eb">
-        <div class="efr">${esc(name||from||'Unknown')}</div>
-        <div class="esj">${esc(subj)}</div>
-        <div class="epv">${esc(m.summary||'')}</div>
+
+  listEl.innerHTML = page.map((m, i) => {
+    const from   = m.fromAddress || m.sender || '';
+    const name   = parseName(from);
+    const color  = avatarColor(from);
+    const unread = m.status === '0';
+    const subj   = decodeHtml(m.subject || '(No Subject)');
+    const idx    = start + i;
+    return `<div class="ei ${unread ? 'unread' : ''}" onclick="openEmail(${idx}, this)">
+      <div class="e-av" style="background:${color}18;color:${color}">${initials(name || from)}</div>
+      <div class="e-body">
+        <div class="e-from">${esc(name || from || 'Unknown')}</div>
+        <div class="e-subj">${esc(subj)}</div>
+        <div class="e-prev">${esc(m.summary || '')}</div>
       </div>
-      <div class="em"><div class="et">${fmtT(m.receivedTime||m.sentDateInGMT)}</div>${unread?'<span class="eu"></span>':''}</div>
+      <div class="e-meta">
+        <div class="e-time">${fmtTime(m.receivedTime || m.sentDateInGMT)}</div>
+        ${unread ? '<span class="e-dot"></span>' : ''}
+      </div>
     </div>`;
   }).join('');
-  renderPagi(total);
+
+  renderPagination(total);
 }
 
-function renderPagi(total){
-  const p=document.getElementById('pagi');
-  const pages=Math.ceil(total/PER);
-  if(pages<=1){p.innerHTML='';return}
-  let h=`<button class="pp" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
-  const maxShow=7;
-  let start=Math.max(1,curPage-3),end=Math.min(pages,start+maxShow-1);
-  if(end-start<maxShow-1)start=Math.max(1,end-maxShow+1);
-  if(start>1)h+=`<button class="pp" onclick="goPage(1)">1</button><span class="pi">…</span>`;
-  for(let i=start;i<=end;i++)h+=`<button class="pp ${i===curPage?'on':''}" onclick="goPage(${i})">${i}</button>`;
-  if(end<pages)h+=`<span class="pi">…</span><button class="pp" onclick="goPage(${pages})">${pages}</button>`;
-  h+=`<button class="pp" onclick="goPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
-  h+=`<span class="pi">${total} msgs</span>`;
-  p.innerHTML=h;
+function renderPagination(total) {
+  const el    = document.getElementById('pagination');
+  const pages = Math.ceil(total / PER_PAGE);
+  if (pages <= 1) { el.innerHTML = ''; return; }
+
+  let html = `<button class="pp" onclick="goPage(${curPage - 1})" ${curPage === 1 ? 'disabled' : ''}>‹</button>`;
+
+  const MAX_BTNS = 7;
+  let s = Math.max(1, curPage - 3);
+  let e = Math.min(pages, s + MAX_BTNS - 1);
+  if (e - s < MAX_BTNS - 1) s = Math.max(1, e - MAX_BTNS + 1);
+
+  if (s > 1) html += `<button class="pp" onclick="goPage(1)">1</button><span class="pagi-info">…</span>`;
+  for (let i = s; i <= e; i++) html += `<button class="pp ${i === curPage ? 'on' : ''}" onclick="goPage(${i})">${i}</button>`;
+  if (e < pages) html += `<span class="pagi-info">…</span><button class="pp" onclick="goPage(${pages})">${pages}</button>`;
+
+  html += `<button class="pp" onclick="goPage(${curPage + 1})" ${curPage === pages ? 'disabled' : ''}>›</button>`;
+  html += `<span class="pagi-info">${total} messages</span>`;
+  el.innerHTML = html;
 }
 
-function goPage(n){
-  const filtered=getFiltered();
-  const pages=Math.ceil(filtered.length/PER);
-  if(n<1||n>pages)return;
-  curPage=n;renderList();
-  document.querySelector('.list-wrap').scrollTop=0;
+function goPage(n) {
+  const pages = Math.ceil(getFiltered().length / PER_PAGE);
+  if (n < 1 || n > pages) return;
+  curPage = n;
+  renderList();
+  document.querySelector('.list-wrap').scrollTop = 0;
 }
 
-function doSearch(){
-  searchQ=document.getElementById('srch').value;
-  curPage=1;renderList();
+function onSearch() {
+  searchQ = document.getElementById('search-input').value;
+  curPage = 1;
+  renderList();
 }
 
-async function openMsg(idx,el){
-  const filtered=getFiltered();
-  const m=filtered[idx];
-  if(!m)return;
-  document.querySelectorAll('.ei').forEach(e=>e.classList.remove('sel'));
-  el.classList.add('sel');el.classList.remove('unread');
-  document.getElementById('det').style.display='flex';
+function refresh() { loadEmails(curFolder); }
 
-  const from=m.fromAddress||m.sender||'';
-  const name=from.includes('<')?from.split('<')[0].trim().replace(/"/g,''):from.split('@')[0];
-  const c=col(from);
-  document.getElementById('d-sj').textContent=dh(m.subject||'(No Subject)');
-  document.getElementById('d-dt').textContent=fmtF(m.receivedTime||m.sentDateInGMT);
-  const av=document.getElementById('d-av');
-  av.textContent=ini(name||from);
-  av.style.cssText=`background:${c}18;color:${c};width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0`;
-  document.getElementById('d-fn').textContent=name||from;
-  document.getElementById('d-fe').textContent=from;
-  document.getElementById('d-to').textContent='To: '+dh(m.toAddress||'');
+/* ═══════════════════════════════════════════
+   OPEN EMAIL DETAIL
+═══════════════════════════════════════════ */
+async function openEmail(idx, el) {
+  const filtered = getFiltered();
+  const m = filtered[idx];
+  if (!m) return;
 
-  const bd=document.getElementById('d-bd');
-  bd.innerHTML=`<div class="sk skl" style="width:88%"></div><div class="sk skl" style="width:72%"></div><div class="sk skl" style="width:80%"></div><div class="sk skl" style="width:55%;margin-top:14px"></div><div class="sk skl" style="width:76%"></div>`;
+  // UI update
+  document.querySelectorAll('.ei').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  el.classList.remove('unread');
+  document.getElementById('detail-panel').style.display = 'flex';
 
-  const mid=m.messageId||m.mid||'';
-  if(!mid){bd.textContent=m.summary||'(No content)';return}
+  // Fill header info immediately (from list data)
+  const from  = m.fromAddress || m.sender || '';
+  const name  = parseName(from);
+  const color = avatarColor(from);
 
-  try{
-    const r=await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
-    const d=await r.json();
-    const msg=d.message||d;
-    if(msg.htmlBody){
-      const fr=document.createElement('iframe');
-      fr.style.cssText='width:100%;border:none;min-height:400px;background:#fff;border-radius:8px';
-      fr.srcdoc=msg.htmlBody;bd.innerHTML='';bd.appendChild(fr);
-      fr.onload=()=>{try{fr.style.height=fr.contentDocument.body.scrollHeight+40+'px'}catch(e){}};
-    }else{
-      bd.textContent=msg.content||msg.body||m.summary||'(Content unavailable)';
+  document.getElementById('d-subject').textContent = decodeHtml(m.subject || '(No Subject)');
+  document.getElementById('d-date').textContent    = fmtFull(m.receivedTime || m.sentDateInGMT);
+
+  const av = document.getElementById('d-avatar');
+  av.textContent = initials(name || from);
+  av.style.cssText = `background:${color}18;color:${color};width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex-shrink:0`;
+
+  document.getElementById('d-name').textContent = name || from;
+  document.getElementById('d-from').textContent = from;
+  document.getElementById('d-to').textContent   = 'To: ' + decodeHtml(m.toAddress || '');
+
+  // Skeleton while loading body
+  const bodyEl = document.getElementById('d-body');
+  bodyEl.innerHTML = `
+    <div class="sk sk-line" style="width:90%"></div>
+    <div class="sk sk-line" style="width:75%"></div>
+    <div class="sk sk-line" style="width:83%"></div>
+    <div class="sk sk-line" style="width:60%;margin-top:16px"></div>
+    <div class="sk sk-line" style="width:78%"></div>
+    <div class="sk sk-line" style="width:70%"></div>`;
+
+  // Fetch full message
+  const mid = m.messageId || m.mid || '';
+  if (!mid) {
+    bodyEl.textContent = m.summary || '(No message ID — cannot fetch body)';
+    return;
+  }
+
+  try {
+    const r = await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
+    const d = await r.json();
+    const msg = d.message || d;
+
+    if (msg.htmlBody) {
+      // Render HTML in sandboxed iframe
+      const iframe = document.createElement('iframe');
+      iframe.style.cssText = 'width:100%;border:none;min-height:400px;background:#fff;border-radius:10px';
+      iframe.srcdoc = msg.htmlBody;
+      bodyEl.innerHTML = '';
+      bodyEl.appendChild(iframe);
+      iframe.onload = () => {
+        try { iframe.style.height = iframe.contentDocument.body.scrollHeight + 40 + 'px'; } catch(e) {}
+      };
+    } else {
+      bodyEl.textContent = msg.content || msg.body || m.summary || '(Empty message)';
     }
-  }catch(e){bd.textContent=m.summary||'Error: '+e.message}
+  } catch (err) {
+    bodyEl.textContent = m.summary || 'Error loading body: ' + err.message;
+  }
 }
 
-function closeDet(){document.getElementById('det').style.display='none';document.querySelectorAll('.ei').forEach(e=>e.classList.remove('sel'))}
-function refresh(){loadEmails(curFolder)}
+function closeDetail() {
+  document.getElementById('detail-panel').style.display = 'none';
+  document.querySelectorAll('.ei').forEach(e => e.classList.remove('sel'));
+}
 
-// Start — load with auto-detect folder
+/* ═══════════════════════════════════════════
+   INIT — auto-detect best folder
+═══════════════════════════════════════════ */
 loadEmails('');
 </script>
 </body>
