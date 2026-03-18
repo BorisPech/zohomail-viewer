@@ -24,9 +24,9 @@ async function getToken(): Promise<string> {
   const d = await res.json()
   if (!d.access_token) throw new Error("Token failed: " + JSON.stringify(d))
 
-  _token = d.access_token
+  _token = d.access_token as string
   _expiry = Date.now() + (d.expires_in || 3600) * 1000
-  return _token
+  return _token as string
 }
 
 async function zFetch(url: string, token: string) {
