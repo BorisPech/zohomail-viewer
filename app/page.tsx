@@ -47,16 +47,21 @@ export default function MailPage() {
           )
           if (brandNew.length > 0) {
             setPendingNewEmails(brandNew)
-            if (
-              typeof window !== "undefined" &&
-              "Notification" in window &&
-              Notification.permission === "granted"
-            ) {
-              const first = brandNew[0]
-              new Notification("New Email", {
-                body: first.subject || "You have a new message",
-                icon: "/favicon.ico",
-              })
+            // Try to show notification (may fail on mobile browsers)
+            try {
+              if (
+                typeof window !== "undefined" &&
+                "Notification" in window &&
+                Notification.permission === "granted"
+              ) {
+                const first = brandNew[0]
+                new Notification("New Email", {
+                  body: first.subject || "You have a new message",
+                  icon: "/favicon.ico",
+                })
+              }
+            } catch {
+              // Notification API not supported or blocked, silently ignore
             }
           }
         }
@@ -68,10 +73,17 @@ export default function MailPage() {
   )
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        Notification.requestPermission()
+    // Request notification permission (may not work on all browsers)
+    try {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        if (Notification.permission === "default") {
+          Notification.requestPermission().catch(() => {
+            // Permission request failed, ignore
+          })
+        }
       }
+    } catch {
+      // Notification API not supported, ignore
     }
   }, [])
 
