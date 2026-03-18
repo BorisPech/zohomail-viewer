@@ -235,10 +235,13 @@ async function loadEmails(folder='Inbox'){
     if(d.error)throw new Error(d.error);
     emails=Array.isArray(d.emails)?d.emails:[];
     folderList=Array.isArray(d.folders)?d.folders:[];
+    // Use activeFolder from API if available
+    if(d.activeFolder) curFolder=d.activeFolder;
+    document.getElementById('sv-f').textContent=curFolder;
     const em=d.accountEmail||'';
     document.getElementById('hdr-em').textContent=em||'Connected';
     document.getElementById('sb-em').textContent=em;
-    const unread=emails.filter(m=>m.status==='0'||!m.isRead).length;
+    const unread=emails.filter(m=>m.status==='0').length;
     document.getElementById('sv-t').textContent=emails.length;
     document.getElementById('sv-u').textContent=unread;
     renderFolders();
@@ -397,7 +400,7 @@ function closeDet(){
 }
 function refresh(){loadEmails(curFolder)}
 
-loadEmails('Inbox');
+loadEmails('');
 </script>
 </body>
 </html>
