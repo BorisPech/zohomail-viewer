@@ -9,501 +9,312 @@
 <style>
 *,::before,::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --c-bg:       #0a0a0a;
-  --c-surface:  #111111;
-  --c-surface2: #1a1a1a;
-  --c-surface3: #222222;
-  --c-border:   #2a2a2a;
-  --c-border2:  #333333;
-  --c-text:     #ededed;
-  --c-text2:    #a1a1aa;
-  --c-text3:    #52525b;
-  --c-accent:   #6366f1;
-  --c-accent2:  #818cf8;
-  --c-green:    #22c55e;
-  --c-red:      #ef4444;
-  --c-orange:   #f97316;
-  --c-yellow:   #eab308;
-  --r:6px;
-  --r2:10px;
-  --r3:14px;
+  --bg:#0a0a0a;--s1:#111;--s2:#1a1a1a;--s3:#222;--s4:#2a2a2a;
+  --b1:#1f1f1f;--b2:#2a2a2a;--b3:#333;
+  --tx:#ededed;--tx2:#a1a1aa;--tx3:#52525b;
+  --ac:#6366f1;--ac2:#818cf8;
+  --gr:#22c55e;--rd:#ef4444;--am:#f59e0b;
+  --r:6px;--r2:10px;
 }
-html,body{height:100%;overflow:hidden;background:var(--c-bg);color:var(--c-text);font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:var(--c-border2);border-radius:2px}
-::-webkit-scrollbar-track{background:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);
+  font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
 
-/* ── TOPBAR ── */
+/* TOPBAR */
 .topbar{
   height:48px;display:flex;align-items:center;padding:0 16px;gap:10px;
-  background:var(--c-surface);border-bottom:1px solid var(--c-border);
-  position:relative;z-index:100;
+  background:var(--s1);border-bottom:1px solid var(--b1);
+  position:relative;z-index:100;flex-shrink:0;
 }
 .brand{display:flex;align-items:center;gap:8px}
-.brand-icon{
-  width:26px;height:26px;border-radius:6px;
-  background:var(--c-accent);
+.brand-ic{
+  width:26px;height:26px;border-radius:6px;background:var(--ac);
   display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:13px;font-weight:700;flex-shrink:0;
-  box-shadow:0 0 0 1px rgba(99,102,241,.4),0 2px 8px rgba(99,102,241,.25);
+  color:#fff;font-size:13px;font-weight:700;
+  box-shadow:0 0 0 1px rgba(99,102,241,.4),0 2px 8px rgba(99,102,241,.2);
 }
-.brand-name{font-size:14px;font-weight:600;color:var(--c-text);letter-spacing:-.3px}
+.brand-name{font-size:14px;font-weight:600;letter-spacing:-.3px}
 .topbar-gap{flex:1}
-.topbar-right{display:flex;align-items:center;gap:6px}
-.topbar-email{
-  font-size:12px;color:var(--c-text2);padding:4px 10px;
-  border-radius:20px;border:1px solid var(--c-border);
-  background:var(--c-surface2);max-width:180px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.status{
+.live-badge{
   display:flex;align-items:center;gap:5px;padding:4px 10px;
   border-radius:20px;border:1px solid rgba(34,197,94,.2);
-  background:rgba(34,197,94,.06);font-size:11px;color:var(--c-green);
+  background:rgba(34,197,94,.06);font-size:11px;color:var(--gr);
 }
-.status-dot{width:5px;height:5px;border-radius:50%;background:var(--c-green);box-shadow:0 0 0 2px rgba(34,197,94,.25);animation:pulse 2.5s ease infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--gr);
+  box-shadow:0 0 0 2px rgba(34,197,94,.2);animation:pulse 2.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ── APP GRID ── */
+/* APP */
 .app{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 48px);overflow:hidden}
 
-/* ── SIDEBAR ── */
-.sidebar{
-  background:var(--c-surface);border-right:1px solid var(--c-border);
-  display:flex;flex-direction:column;overflow:hidden;
-}
-.sb-header{padding:14px 12px 8px;flex-shrink:0}
+/* SIDEBAR */
+.sb{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.sb-top{padding:12px 10px 8px;flex-shrink:0}
 .sb-search{
   display:flex;align-items:center;gap:7px;padding:7px 10px;
-  background:var(--c-surface2);border:1px solid var(--c-border);
-  border-radius:var(--r2);cursor:text;transition:.15s;
+  background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);transition:.15s;
 }
-.sb-search:focus-within{border-color:var(--c-accent)}
-.sb-search input{
-  flex:1;background:transparent;border:none;outline:none;
-  font-size:12px;color:var(--c-text);font-family:inherit;
+.sb-search:focus-within{border-color:var(--ac)}
+.sb-search input{flex:1;background:transparent;border:none;outline:none;font-size:12px;color:var(--tx);font-family:inherit}
+.sb-search input::placeholder{color:var(--tx3)}
+.sb-list{flex:1;overflow-y:auto;padding:8px 8px 0}
+.sb-sec{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--tx3);padding:6px 6px 4px}
+.fi{
+  display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--r);
+  cursor:pointer;font-size:13px;color:var(--tx2);border:1px solid transparent;
+  margin-bottom:1px;background:transparent;width:100%;text-align:left;
+  font-family:inherit;transition:.12s;
 }
-.sb-search input::placeholder{color:var(--c-text3)}
-.sb-search-ic{color:var(--c-text3);font-size:13px;flex-shrink:0}
-.sb-folders{flex:1;overflow-y:auto;padding:8px 8px 0}
-.sb-section{
-  font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-  color:var(--c-text3);padding:8px 6px 4px;
-}
-.folder-item{
-  display:flex;align-items:center;gap:8px;
-  padding:7px 8px;border-radius:var(--r);
-  cursor:pointer;transition:.12s;
-  font-size:13px;color:var(--c-text2);
-  border:1px solid transparent;margin-bottom:1px;
-  background:transparent;width:100%;text-align:left;font-family:inherit;
-}
-.folder-item:hover{background:var(--c-surface2);color:var(--c-text)}
-.folder-item.active{
-  background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);
-  color:var(--c-accent2);
-}
-.fi-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.7}
-.fi-name{flex:1;font-weight:500}
-.fi-count{
-  font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;
-  background:var(--c-accent);color:#fff;min-width:18px;text-align:center;
-}
-.fi-count.z{background:var(--c-surface3);color:var(--c-text3)}
-.sb-divider{height:1px;background:var(--c-border);margin:8px 8px}
-.sb-footer{padding:12px;flex-shrink:0;border-top:1px solid var(--c-border)}
-.sb-acct-label{font-size:10px;color:var(--c-text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
-.sb-acct-email{font-size:11px;color:var(--c-text2);word-break:break-all;line-height:1.4}
+.fi:hover{background:var(--s2);color:var(--tx)}
+.fi.on{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);color:var(--ac2)}
+.fi-ic{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.7}
+.fi-nm{flex:1;font-weight:500}
+.fi-ct{font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;background:var(--ac);color:#fff;min-width:18px;text-align:center}
+.fi-ct.z{background:var(--s3);color:var(--tx3)}
+.sb-div{height:1px;background:var(--b1);margin:8px 8px}
 
-/* ── MAIN AREA ── */
-.main{display:flex;flex-direction:column;overflow:hidden;background:var(--c-bg)}
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 
 /* toolbar */
 .toolbar{
   display:flex;align-items:center;gap:8px;padding:10px 16px;
-  background:var(--c-surface);border-bottom:1px solid var(--c-border);flex-shrink:0;
+  background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0;
 }
-.search-bar{
+.srch-bar{
   flex:1;display:flex;align-items:center;gap:8px;
-  background:var(--c-surface2);border:1px solid var(--c-border);
-  border-radius:var(--r2);padding:8px 12px;transition:.15s;
+  background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);
+  padding:8px 12px;transition:.15s;
 }
-.search-bar:focus-within{border-color:var(--c-accent)}
-.search-bar input{
-  flex:1;background:transparent;border:none;outline:none;
-  font-size:13px;color:var(--c-text);font-family:inherit;
-}
-.search-bar input::placeholder{color:var(--c-text3)}
-.search-bar-ic{color:var(--c-text3);font-size:14px;flex-shrink:0}
+.srch-bar:focus-within{border-color:var(--ac)}
+.srch-bar input{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--tx);font-family:inherit}
+.srch-bar input::placeholder{color:var(--tx3)}
 .btn{
-  display:flex;align-items:center;gap:5px;
-  padding:7px 12px;border-radius:var(--r2);
-  background:var(--c-surface2);border:1px solid var(--c-border);
-  color:var(--c-text2);font-size:12px;font-weight:500;
-  cursor:pointer;transition:.12s;white-space:nowrap;font-family:inherit;
+  display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r2);
+  background:var(--s2);border:1px solid var(--b1);color:var(--tx2);
+  font-size:12px;font-weight:500;cursor:pointer;transition:.12s;
+  white-space:nowrap;font-family:inherit;
 }
-.btn:hover{border-color:var(--c-border2);color:var(--c-text)}
-.btn.primary{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
-.btn.primary:hover{background:#4f46e5}
+.btn:hover{border-color:var(--b2);color:var(--tx)}
 
 /* stats */
-.stats{
-  display:flex;border-bottom:1px solid var(--c-border);
-  flex-shrink:0;background:var(--c-surface);
-}
+.stats{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
 .stat{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px}
-.stat+.stat{border-left:1px solid var(--c-border)}
-.stat-icon{
-  width:32px;height:32px;border-radius:var(--r);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;flex-shrink:0;
-}
-.stat-val{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
-.stat-lbl{font-size:11px;color:var(--c-text3);margin-top:1px}
+.stat+.stat{border-left:1px solid var(--b1)}
+.stat-ico{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.stat-v{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.stat-l{font-size:11px;color:var(--tx3);margin-top:1px}
 
-/* ── EMAIL LIST ── */
-.list{flex:1;overflow-y:auto}
-.list-header{
-  display:grid;grid-template-columns:44px 1fr 70px;gap:10px;
-  padding:7px 16px;border-bottom:1px solid var(--c-border);
-  background:var(--c-surface);
+/* COUNT BAR */
+.count-bar{
+  padding:7px 16px;border-bottom:1px solid var(--b1);background:var(--s1);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
 }
-.lh-cell{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--c-text3)}
+.count-txt{font-size:12px;color:var(--tx3)}
+.count-bold{color:var(--tx2);font-weight:600}
+
+/* LIST — scroll all emails */
+.list{flex:1;overflow-y:auto}
 
 .email-row{
-  display:grid;grid-template-columns:44px 1fr 70px;
-  gap:10px;align-items:start;
-  padding:12px 16px;border-bottom:1px solid var(--c-border);
-  cursor:pointer;position:relative;transition:background .1s;
+  display:grid;grid-template-columns:46px 1fr 65px;
+  gap:10px;align-items:start;padding:12px 16px;
+  border-bottom:1px solid var(--b1);cursor:pointer;
+  position:relative;transition:background .1s;
 }
-.email-row:hover{background:var(--c-surface)}
+.email-row:hover{background:var(--s1)}
 .email-row.unread{background:rgba(99,102,241,.04)}
-.email-row.unread::before{
-  content:'';position:absolute;left:0;top:0;bottom:0;
-  width:2px;background:var(--c-accent);
-}
-.email-row.selected{background:var(--c-surface2)}
+.email-row.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ac)}
+.email-row.sel{background:var(--s2)}
 .email-row:last-child{border-bottom:none}
 
-.e-avatar{
-  width:38px;height:38px;border-radius:var(--r2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:600;flex-shrink:0;letter-spacing:-.5px;
-}
-.e-body{min-width:0}
-.e-from{
-  font-size:13px;font-weight:600;color:var(--c-text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;
-}
-.email-row:not(.unread) .e-from{font-weight:400;color:var(--c-text2)}
-.e-subject{
-  font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;
-}
-.email-row.unread .e-subject{color:var(--c-text);font-weight:500}
-.email-row:not(.unread) .e-subject{color:var(--c-text3)}
-.e-preview{
-  font-size:11.5px;color:var(--c-text3);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.e-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
-.e-time{font-size:11px;color:var(--c-text3)}
-.e-unread{width:7px;height:7px;border-radius:50%;background:var(--c-accent)}
+.e-av{width:40px;height:40px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.e-bd{min-width:0}
+.e-fr{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.email-row:not(.unread) .e-fr{font-weight:400;color:var(--tx2)}
+.e-sj{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.email-row.unread .e-sj{color:var(--tx);font-weight:500}
+.email-row:not(.unread) .e-sj{color:var(--tx3)}
+.e-pv{font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.e-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
+.e-tm{font-size:11px;color:var(--tx3)}
+.e-ud{width:7px;height:7px;border-radius:50%;background:var(--ac)}
 
 /* empty */
-.empty{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;padding:40px;text-align:center;
-}
-.empty-icon{
-  width:56px;height:56px;border-radius:16px;
-  background:var(--c-surface2);border:1px solid var(--c-border);
-  display:flex;align-items:center;justify-content:center;font-size:24px;
-  margin:0 auto 16px;
-}
-.empty-title{font-size:16px;font-weight:600;color:var(--c-text);margin-bottom:6px}
-.empty-desc{font-size:13px;color:var(--c-text3);line-height:1.7;max-width:280px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;padding:40px;text-align:center}
+.empty-ic{width:52px;height:52px;border-radius:14px;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px}
+.empty-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--tx3);line-height:1.7}
 
-/* pager */
-.pager{
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  padding:10px 16px;border-top:1px solid var(--c-border);
-  background:var(--c-surface);flex-shrink:0;
-}
-.pg{
-  min-width:28px;height:28px;padding:0 6px;border-radius:var(--r);
-  border:1px solid var(--c-border);background:var(--c-surface2);
-  color:var(--c-text2);font-size:12px;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:.12s;font-family:inherit;
-}
-.pg:hover,.pg.on{background:var(--c-accent);border-color:var(--c-accent);color:#fff}
-.pg:disabled{opacity:.3;cursor:default;pointer-events:none}
-.pg-dots{color:var(--c-text3);font-size:12px;padding:0 4px}
-.pg-info{font-size:11px;color:var(--c-text3);padding:0 8px}
-
-/* ── DETAIL PANEL ── */
-.detail{
+/* DETAIL */
+.det{
   position:fixed;top:48px;right:0;
-  width:48vw;max-width:720px;
-  height:calc(100vh - 48px);
-  background:var(--c-surface);border-left:1px solid var(--c-border);
+  width:48vw;max-width:720px;height:calc(100vh - 48px);
+  background:var(--s1);border-left:1px solid var(--b2);
   display:none;flex-direction:column;z-index:50;
-  animation:slide-right .2s cubic-bezier(.16,1,.3,1);
+  animation:si .2s cubic-bezier(.16,1,.3,1);
 }
-@keyframes slide-right{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes si{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+.det-top{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.det-close{
+  width:28px;height:28px;border-radius:var(--r);border:1px solid var(--b1);
+  background:var(--s2);color:var(--tx2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0;font-family:inherit;
+}
+.det-close:hover{border-color:var(--rd);color:var(--rd)}
+.det-sj{font-size:15px;font-weight:600;color:var(--tx);line-height:1.35;margin-bottom:2px}
+.det-dt{font-size:11px;color:var(--tx3)}
+.det-meta{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--b1);background:var(--s2);flex-shrink:0}
+.det-av{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.det-nm{font-size:13px;font-weight:600;margin-bottom:2px}
+.det-em{font-size:11px;color:var(--tx3)}
+.det-to{font-size:11px;color:var(--tx3);margin-top:2px}
+.det-acts{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.det-act{padding:5px 12px;border-radius:var(--r);border:1px solid var(--b1);background:var(--s2);color:var(--tx2);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;font-family:inherit}
+.det-act:hover{border-color:var(--b2);color:var(--tx)}
+.det-body{flex:1;overflow-y:auto;padding:20px}
+.det-body-txt{font-size:13px;line-height:1.85;color:var(--tx2);white-space:pre-wrap;word-break:break-word}
 
-.detail-topbar{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;
-  border-bottom:1px solid var(--c-border);flex-shrink:0;
-}
-.detail-close{
-  width:28px;height:28px;border-radius:var(--r);
-  border:1px solid var(--c-border);background:var(--c-surface2);
-  color:var(--c-text2);font-size:14px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:.12s;flex-shrink:0;font-family:inherit;
-}
-.detail-close:hover{border-color:var(--c-red);color:var(--c-red)}
-.detail-subject-wrap{flex:1;min-width:0}
-.detail-subject{font-size:15px;font-weight:600;color:var(--c-text);line-height:1.35;margin-bottom:2px}
-.detail-date{font-size:11px;color:var(--c-text3)}
-
-.detail-sender{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;
-  border-bottom:1px solid var(--c-border);background:var(--c-surface2);flex-shrink:0;
-}
-.ds-avatar{
-  width:36px;height:36px;border-radius:var(--r2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;flex-shrink:0;
-}
-.ds-name{font-size:13px;font-weight:600;color:var(--c-text);margin-bottom:2px}
-.ds-email{font-size:11px;color:var(--c-text3)}
-.ds-to{font-size:11px;color:var(--c-text3);margin-top:2px}
-
-.detail-actions{
-  display:flex;gap:6px;padding:8px 16px;
-  border-bottom:1px solid var(--c-border);flex-shrink:0;
-}
-.action{
-  padding:5px 12px;border-radius:var(--r);
-  border:1px solid var(--c-border);background:var(--c-surface2);
-  color:var(--c-text2);font-size:12px;font-weight:500;
-  cursor:pointer;transition:.12s;font-family:inherit;
-}
-.action:hover{border-color:var(--c-border2);color:var(--c-text)}
-
-.detail-body{flex:1;overflow-y:auto;padding:20px}
-.body-text{font-size:13px;line-height:1.85;color:var(--c-text2);white-space:pre-wrap;word-break:break-word}
-
-/* ── LOADER ── */
-#loader{
-  position:fixed;inset:0;z-index:200;background:var(--c-bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-}
-.spinner{
-  width:34px;height:34px;border-radius:50%;
-  border:2px solid var(--c-border2);border-top-color:var(--c-accent);
-  animation:spin .65s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner-text{font-size:13px;color:var(--c-text2)}
-.sk{background:linear-gradient(90deg,var(--c-surface2) 25%,var(--c-surface3) 50%,var(--c-surface2) 75%);background-size:200%;animation:shim 1.2s ease-in-out infinite;border-radius:4px}
+/* LOADER */
+#ldr{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.spin{width:34px;height:34px;border-radius:50%;border:2px solid var(--b2);border-top-color:var(--ac);animation:sp .65s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin-t{font-size:13px;color:var(--tx2)}
+.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200%;animation:shim 1.2s ease-in-out infinite;border-radius:4px}
 @keyframes shim{0%{background-position:200%}100%{background-position:-200%}}
 .skl{height:10px;margin-bottom:8px}
 
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:18px;right:18px;z-index:999;
-  padding:11px 16px;border-radius:var(--r2);
-  background:var(--c-surface2);border:1px solid var(--c-border2);
-  border-left:3px solid var(--c-green);
-  font-size:12px;color:var(--c-text);
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
-  display:none;animation:toast-up .2s ease;font-family:inherit;
-}
-#toast.err{border-left-color:var(--c-red)}
-@keyframes toast-up{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+/* TOAST */
+#toast{position:fixed;bottom:18px;right:18px;z-index:999;padding:11px 16px;border-radius:var(--r2);background:var(--s2);border:1px solid var(--b2);border-left:3px solid var(--gr);font-size:12px;color:var(--tx);box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;font-family:inherit}
+#toast.err{border-left-color:var(--rd)}
 
-/* ── RESPONSIVE ── */
-@media(max-width:960px){
-  .app{grid-template-columns:180px 1fr}
-}
-@media(max-width:720px){
-  .app{grid-template-columns:1fr}
-  .sidebar{display:none}
-  .detail{width:100vw;max-width:none}
-  .stats{display:none}
-}
-@media(max-width:480px){
-  .list-header{display:none}
-}
+/* RESPONSIVE */
+@media(max-width:900px){.app{grid-template-columns:180px 1fr}}
+@media(max-width:680px){.app{grid-template-columns:1fr}.sb{display:none}.det{width:100vw;max-width:none}.stats{display:none}}
 </style>
 </head>
 <body>
 
-<div id="loader">
-  <div class="spinner"></div>
-  <div class="spinner-text" id="loader-msg">Loading...</div>
-</div>
+<div id="ldr"><div class="spin"></div><div class="spin-t" id="ldr-t">Loading...</div></div>
 
-<!-- TOPBAR -->
 <header class="topbar">
   <div class="brand">
-    <div class="brand-icon">M</div>
+    <div class="brand-ic">M</div>
     <span class="brand-name">Zoho Mail</span>
   </div>
   <div class="topbar-gap"></div>
-  <div class="topbar-right">
-    <div class="status"><span class="status-dot"></span>Live</div>
-    <div class="topbar-email" id="top-email">—</div>
-  </div>
+  <div class="live-badge"><span class="live-dot"></span>Live</div>
 </header>
 
-<!-- APP -->
 <div class="app">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sb-header">
+  <aside class="sb">
+    <div class="sb-top">
       <div class="sb-search">
-        <span class="sb-search-ic">⌕</span>
-        <input id="sb-srch" type="text" placeholder="Search..." oninput="onSearch(this.value)">
+        <span style="color:var(--tx3);font-size:13px">⌕</span>
+        <input id="sb-q" type="text" placeholder="Search..." oninput="doSearch(this.value)">
       </div>
     </div>
-    <div class="sb-folders">
-      <div class="sb-section">Folders</div>
-      <div id="folder-list"></div>
+    <div class="sb-list">
+      <div class="sb-sec">Folders</div>
+      <div id="fl"></div>
     </div>
-    <div class="sb-divider"></div>
-    <div class="sb-footer">
-      <div class="sb-acct-label">Account</div>
-      <div class="sb-acct-email" id="sb-email">—</div>
+    <div class="sb-div"></div>
+    <div style="padding:10px 12px;flex-shrink:0">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:3px">Folder</div>
+      <div style="font-size:12px;color:var(--tx2)" id="cur-folder-name">—</div>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
-
-    <!-- Toolbar -->
     <div class="toolbar">
-      <div class="search-bar">
-        <span class="search-bar-ic">⌕</span>
-        <input id="main-srch" type="text" placeholder="Search sender, subject or content..." oninput="onSearch(this.value)">
+      <div class="srch-bar">
+        <span style="color:var(--tx3);font-size:14px">⌕</span>
+        <input id="main-q" type="text" placeholder="Search sender, subject or content..." oninput="doSearch(this.value)">
       </div>
       <button class="btn" onclick="doRefresh()">↻ Refresh</button>
     </div>
 
-    <!-- Stats -->
     <div class="stats">
       <div class="stat">
-        <div class="stat-icon" style="background:rgba(99,102,241,.1);color:var(--c-accent)">✉</div>
-        <div>
-          <div class="stat-val" id="st-total">—</div>
-          <div class="stat-lbl">Total</div>
-        </div>
+        <div class="stat-ico" style="background:rgba(99,102,241,.1);color:var(--ac)">✉</div>
+        <div><div class="stat-v" id="sv-t">—</div><div class="stat-l">Total</div></div>
       </div>
       <div class="stat">
-        <div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--c-red)">◉</div>
-        <div>
-          <div class="stat-val" id="st-unread">—</div>
-          <div class="stat-lbl">Unread</div>
-        </div>
+        <div class="stat-ico" style="background:rgba(239,68,68,.1);color:var(--rd)">◉</div>
+        <div><div class="stat-v" id="sv-u">—</div><div class="stat-l">Unread</div></div>
       </div>
       <div class="stat">
-        <div class="stat-icon" style="background:rgba(34,197,94,.1);color:var(--c-green)">◈</div>
-        <div>
-          <div class="stat-val" id="st-folder" style="font-size:13px;padding-top:3px">—</div>
-          <div class="stat-lbl">Folder</div>
-        </div>
+        <div class="stat-ico" style="background:rgba(34,197,94,.1);color:var(--gr)">◈</div>
+        <div><div class="stat-v" id="sv-f" style="font-size:13px;padding-top:3px">—</div><div class="stat-l">Folder</div></div>
       </div>
     </div>
 
-    <!-- List Header -->
-    <div class="list-header">
-      <div class="lh-cell"></div>
-      <div class="lh-cell">Message</div>
-      <div class="lh-cell" style="text-align:right">Time</div>
+    <div class="count-bar">
+      <span class="count-txt">Showing <span class="count-bold" id="show-count">0</span> messages</span>
+      <span class="count-txt" id="filter-info"></span>
     </div>
 
-    <!-- Email List -->
-    <div class="list" id="email-list"></div>
-    <div class="pager" id="pager"></div>
-
+    <div class="list" id="list"></div>
   </main>
 </div>
 
-<!-- DETAIL -->
-<div class="detail" id="detail">
-  <div class="detail-topbar">
-    <button class="detail-close" onclick="closeDetail()">✕</button>
-    <div class="detail-subject-wrap">
-      <div class="detail-subject" id="d-subject">—</div>
-      <div class="detail-date" id="d-date"></div>
+<div class="det" id="det">
+  <div class="det-top">
+    <button class="det-close" onclick="closeDet()">✕</button>
+    <div style="flex:1;min-width:0">
+      <div class="det-sj" id="d-sj">—</div>
+      <div class="det-dt" id="d-dt"></div>
     </div>
   </div>
-  <div class="detail-sender">
-    <div class="ds-avatar" id="d-avatar">?</div>
+  <div class="det-meta">
+    <div class="det-av" id="d-av">?</div>
     <div>
-      <div class="ds-name"  id="d-name"></div>
-      <div class="ds-email" id="d-from"></div>
-      <div class="ds-to"    id="d-to"></div>
+      <div class="det-nm" id="d-nm"></div>
+      <div class="det-em" id="d-em"></div>
+      <div class="det-to" id="d-to"></div>
     </div>
   </div>
-  <div class="detail-actions">
-    <button class="action">↩ Reply</button>
-    <button class="action">→ Forward</button>
-    <button class="action">⬇ Download</button>
+  <div class="det-acts">
+    <button class="det-act">↩ Reply</button>
+    <button class="det-act">→ Forward</button>
+    <button class="det-act">⬇ Download</button>
   </div>
-  <div class="detail-body">
-    <div id="d-body" class="body-text"></div>
-  </div>
+  <div class="det-body"><div id="d-bd" class="det-body-txt"></div></div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const API='/api/emails', PER=30;
-let emails=[],folders=[],curFolder='',curPage=1,query='';
+const API='/api/emails';
+let emails=[],folders=[],curFolder='',query='';
 
-const COLORS=[
-  {bg:'rgba(99,102,241,.15)',fg:'#818cf8'},
-  {bg:'rgba(239,68,68,.15)',fg:'#f87171'},
-  {bg:'rgba(34,197,94,.15)',fg:'#4ade80'},
-  {bg:'rgba(249,115,22,.15)',fg:'#fb923c'},
-  {bg:'rgba(234,179,8,.15)',fg:'#facc15'},
-  {bg:'rgba(168,85,247,.15)',fg:'#c084fc'},
-  {bg:'rgba(20,184,166,.15)',fg:'#2dd4bf'},
-  {bg:'rgba(236,72,153,.15)',fg:'#f472b6'},
+const COLS=[
+  {bg:'rgba(99,102,241,.15)',fg:'#818cf8'},{bg:'rgba(239,68,68,.15)',fg:'#f87171'},
+  {bg:'rgba(34,197,94,.15)',fg:'#4ade80'},{bg:'rgba(249,115,22,.15)',fg:'#fb923c'},
+  {bg:'rgba(234,179,8,.15)',fg:'#facc15'},{bg:'rgba(168,85,247,.15)',fg:'#c084fc'},
+  {bg:'rgba(20,184,166,.15)',fg:'#2dd4bf'},{bg:'rgba(236,72,153,.15)',fg:'#f472b6'},
 ];
-const FICONS={inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',archive:'◫',notification:'◉',newsletter:'◈',templates:'◻',snoozed:'⏰',outbox:'↺',starred:'★'};
-const FORDER=['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
+const FI={inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',archive:'◫',notification:'◉',newsletter:'◈',templates:'◻',snoozed:'⏰',outbox:'↺',starred:'★'};
+const FO=['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
 
 const $=id=>document.getElementById(id);
-function avatarColor(s){let h=0;for(const c of(s||''))h=(h*31+c.charCodeAt(0))%COLORS.length;return COLORS[h]}
-function initials(s){return(s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
+function col(s){let h=0;for(const c of(s||''))h=(h*31+c.charCodeAt(0))%COLS.length;return COLS[h]}
+function ini(s){return(s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?'}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function decodeH(s){const t=document.createElement('textarea');t.innerHTML=s||'';return t.value}
-function senderName(a){if(!a)return'';if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,'');return a.split('@')[0]}
-function timeShort(ms){
-  if(!ms)return'';
-  const d=new Date(+ms),n=new Date();
-  if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if(n-d<7*864e5)return d.toLocaleDateString([],{weekday:'short'});
-  return d.toLocaleDateString([],{month:'short',day:'numeric'});
-}
-function timeLong(ms){if(!ms)return'';return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'})}
+function dh(s){const t=document.createElement('textarea');t.innerHTML=s||'';return t.value}
+function snm(a){if(!a)return'';if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,'');return a.split('@')[0]}
+function tS(ms){if(!ms)return'';const d=new Date(+ms),n=new Date();if(d.toDateString()===n.toDateString())return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});if(n-d<7*864e5)return d.toLocaleDateString([],{weekday:'short'});return d.toLocaleDateString([],{month:'short',day:'numeric'})}
+function tL(ms){if(!ms)return'';return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'})}
 
-function showLoad(msg){$('loader').style.display='flex';$('loader-msg').textContent=msg||'Loading...'}
-function hideLoad(){$('loader').style.display='none'}
-function showToast(msg,err=false){
-  const t=$('toast');t.textContent=msg;t.className=err?'err':'';t.style.display='block';
-  clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',5000);
-}
+function showLdr(m){$('ldr').style.display='flex';$('ldr-t').textContent=m||'Loading...'}
+function hideLdr(){$('ldr').style.display='none'}
+function toast(m,e=false){const t=$('toast');t.textContent=m;t.className=e?'err':'';t.style.display='block';clearTimeout(t._);t._=setTimeout(()=>t.style.display='none',5000)}
 
 async function loadFolder(folder=''){
-  showLoad(folder?`Opening ${folder}...`:'Loading mailbox...');
-  closeDetail();
+  showLdr(folder?`Opening ${folder}...`:'Loading mailbox...');
+  closeDet();
   try{
     const r=await fetch(folder?`${API}?folder=${encodeURIComponent(folder)}&limit=200`:`${API}?limit=200`);
     const d=await r.json();
@@ -511,127 +322,112 @@ async function loadFolder(folder=''){
     emails=Array.isArray(d.emails)?d.emails:[];
     folders=Array.isArray(d.folders)?d.folders:[];
     curFolder=d.activeFolder||folder||'';
-    const em=d.accountEmail||'';
-    $('top-email').textContent=em||'Connected';
-    $('sb-email').textContent=em;
-    $('st-total').textContent=emails.length;
-    $('st-unread').textContent=emails.filter(m=>m.status==='0').length;
-    $('st-folder').textContent=curFolder||'—';
+    $('sv-t').textContent=emails.length;
+    $('sv-u').textContent=emails.filter(m=>m.status==='0').length;
+    $('sv-f').textContent=curFolder||'—';
+    $('cur-folder-name').textContent=curFolder||'—';
     renderFolders();
-    curPage=1;query='';
-    $('sb-srch').value='';$('main-srch').value='';
-    renderList();
-    hideLoad();
+    query='';$('sb-q').value='';$('main-q').value='';
+    renderAll();
+    hideLdr();
   }catch(e){
-    hideLoad();
-    $('email-list').innerHTML=`<div class="empty"><div class="empty-icon">⚠</div><div class="empty-title">Failed to load</div><div class="empty-desc">${esc(e.message)}<br><br>Visit <code>/api/emails?debug=1</code> to diagnose.</div></div>`;
-    showToast(e.message,true);
+    hideLdr();
+    $('list').innerHTML=`<div class="empty"><div class="empty-ic">⚠</div><div class="empty-t">Failed to load</div><div class="empty-s">${esc(e.message)}<br>Visit <code>/api/emails?debug=1</code></div></div>`;
+    toast(e.message,true);
   }
 }
 
 function renderFolders(){
   const map={};folders.forEach(f=>map[f.name]=f);
-  const sorted=[];FORDER.forEach(n=>{if(map[n])sorted.push(map[n])});folders.forEach(f=>{if(!FORDER.includes(f.name))sorted.push(f)});
-  $('folder-list').innerHTML=sorted.map(f=>{
-    const ic=FICONS[f.name.toLowerCase()]||'◇',on=f.name===curFolder?'active':'',u=f.unread||0;
-    return`<button class="folder-item ${on}" onclick="switchFolder('${esc(f.name)}',this)">
-      <span class="fi-icon">${ic}</span>
-      <span class="fi-name">${esc(f.name)}</span>
-      <span class="fi-count ${u===0?'z':''}">${u}</span>
+  const sorted=[];FO.forEach(n=>{if(map[n])sorted.push(map[n])});folders.forEach(f=>{if(!FO.includes(f.name))sorted.push(f)});
+  $('fl').innerHTML=sorted.map(f=>{
+    const ic=FI[f.name.toLowerCase()]||'◇',on=f.name===curFolder?'on':'',u=f.unread||0;
+    return`<button class="fi ${on}" onclick="sw('${esc(f.name)}',this)">
+      <span class="fi-ic">${ic}</span><span class="fi-nm">${esc(f.name)}</span>
+      <span class="fi-ct ${u===0?'z':''}">${u}</span>
     </button>`;
   }).join('');
 }
 
-function switchFolder(name,el){
-  document.querySelectorAll('.folder-item').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
+function sw(name,el){
+  document.querySelectorAll('.fi').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
   loadFolder(name);
 }
 
-function getFiltered(){
+function getFilt(){
   if(!query)return emails;
   const q=query.toLowerCase();
-  return emails.filter(m=>decodeH(m.subject||'').toLowerCase().includes(q)||(m.fromAddress||m.sender||'').toLowerCase().includes(q)||(m.summary||'').toLowerCase().includes(q));
+  return emails.filter(m=>dh(m.subject||'').toLowerCase().includes(q)||(m.fromAddress||m.sender||'').toLowerCase().includes(q)||(m.summary||'').toLowerCase().includes(q));
 }
 
-function renderList(){
-  const list=getFiltered(),total=list.length,s=(curPage-1)*PER,page=list.slice(s,s+PER),el=$('email-list');
-  if(!page.length){
-    el.innerHTML=`<div class="empty"><div class="empty-icon">${query?'🔍':'📭'}</div><div class="empty-title">${query?'No results':'Empty folder'}</div><div class="empty-desc">${query?'Try different keywords':'No messages here'}</div></div>`;
-    $('pager').innerHTML='';return;
+function renderAll(){
+  const list=getFilt(), el=$('list');
+  $('show-count').textContent=list.length;
+  $('filter-info').textContent=query?`(filtered from ${emails.length})`:'';
+
+  if(!list.length){
+    el.innerHTML=`<div class="empty"><div class="empty-ic">${query?'🔍':'📭'}</div><div class="empty-t">${query?'No results':'Empty folder'}</div><div class="empty-s">${query?'Try different keywords':'No messages to display'}</div></div>`;
+    return;
   }
-  el.innerHTML=page.map((m,i)=>{
-    const addr=m.fromAddress||m.sender||'',name=senderName(addr),{bg,fg}=avatarColor(addr);
-    const unread=m.status==='0',subj=decodeH(m.subject||'(No Subject)');
-    return`<div class="email-row${unread?' unread':''}" onclick="openEmail(${s+i},this)">
-      <div class="e-avatar" style="background:${bg};color:${fg}">${initials(name||addr)}</div>
-      <div class="e-body">
-        <div class="e-from">${esc(name||addr||'Unknown')}</div>
-        <div class="e-subject">${esc(subj)}</div>
-        <div class="e-preview">${esc(m.summary||'')}</div>
+
+  el.innerHTML=list.map((m,i)=>{
+    const from=m.fromAddress||m.sender||'',name=snm(from),{bg,fg}=col(from);
+    const u=m.status==='0',sj=dh(m.subject||'(No Subject)');
+    return`<div class="email-row${u?' unread':''}" onclick="openMsg(${i},this)">
+      <div class="e-av" style="background:${bg};color:${fg}">${ini(name||from)}</div>
+      <div class="e-bd">
+        <div class="e-fr">${esc(name||from||'Unknown')}</div>
+        <div class="e-sj">${esc(sj)}</div>
+        <div class="e-pv">${esc(m.summary||'')}</div>
       </div>
-      <div class="e-meta">
-        <span class="e-time">${timeShort(m.receivedTime||m.sentDateInGMT)}</span>
-        ${unread?'<span class="e-unread"></span>':''}
+      <div class="e-rt">
+        <span class="e-tm">${tS(m.receivedTime||m.sentDateInGMT)}</span>
+        ${u?'<span class="e-ud"></span>':''}
       </div>
     </div>`;
   }).join('');
-  renderPager(total);
 }
 
-function renderPager(total){
-  const el=$('pager'),pages=Math.ceil(total/PER);
-  if(pages<=1){el.innerHTML='';return}
-  const W=7,s=Math.max(1,Math.min(curPage-3,pages-W+1)),e=Math.min(pages,Math.max(s+W-1,W)),s2=Math.max(1,e-W+1);
-  let h=`<button class="pg" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
-  if(s2>1)h+=`<button class="pg" onclick="goPage(1)">1</button><span class="pg-dots">…</span>`;
-  for(let i=s2;i<=e;i++)h+=`<button class="pg${i===curPage?' on':''}" onclick="goPage(${i})">${i}</button>`;
-  if(e<pages)h+=`<span class="pg-dots">…</span><button class="pg" onclick="goPage(${pages})">${pages}</button>`;
-  h+=`<button class="pg" onclick="goPage(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
-  h+=`<span class="pg-info">${total} messages</span>`;
-  el.innerHTML=h;
-}
-
-function goPage(n){const p=Math.ceil(getFiltered().length/PER);if(n<1||n>p)return;curPage=n;renderList();$('email-list').scrollTop=0}
-function onSearch(v){query=v;curPage=1;$('sb-srch').value=v;$('main-srch').value=v;renderList()}
+function doSearch(v){query=v;$('sb-q').value=v;$('main-q').value=v;renderAll()}
 function doRefresh(){loadFolder(curFolder)}
 
-async function openEmail(idx,el){
-  const list=getFiltered(),m=list[idx];if(!m)return;
-  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('selected'));
-  el.classList.add('selected');el.classList.remove('unread');
-  $('detail').style.display='flex';
+async function openMsg(idx,el){
+  const list=getFilt(),m=list[idx];if(!m)return;
+  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('sel'));
+  el.classList.add('sel');el.classList.remove('unread');
+  $('det').style.display='flex';
 
-  const addr=m.fromAddress||m.sender||'',name=senderName(addr),{bg,fg}=avatarColor(addr);
-  $('d-subject').textContent=decodeH(m.subject||'(No Subject)');
-  $('d-date').textContent=timeLong(m.receivedTime||m.sentDateInGMT);
-  const av=$('d-avatar');
-  av.textContent=initials(name||addr);
-  av.style.cssText=`background:${bg};color:${fg};width:36px;height:36px;border-radius:${getComputedStyle(document.documentElement).getPropertyValue('--r2')};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0`;
-  $('d-name').textContent=name||addr;
-  $('d-from').textContent=addr;
-  $('d-to').textContent='To: '+decodeH(m.toAddress||'');
+  const from=m.fromAddress||m.sender||'',name=snm(from),{bg,fg}=col(from);
+  $('d-sj').textContent=dh(m.subject||'(No Subject)');
+  $('d-dt').textContent=tL(m.receivedTime||m.sentDateInGMT);
+  const av=$('d-av');
+  av.textContent=ini(name||from);
+  av.style.cssText=`background:${bg};color:${fg};width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0`;
+  $('d-nm').textContent=name||from;
+  $('d-em').textContent=from;
+  $('d-to').textContent='To: '+dh(m.toAddress||'');
 
-  const body=$('d-body');
-  body.innerHTML=`<div class="sk skl" style="width:90%"></div><div class="sk skl" style="width:75%"></div><div class="sk skl" style="width:83%"></div><div class="sk skl" style="width:55%;margin-top:18px"></div><div class="sk skl" style="width:77%"></div>`;
+  const bd=$('d-bd');
+  bd.innerHTML='<div class="sk skl" style="width:90%"></div><div class="sk skl" style="width:74%"></div><div class="sk skl" style="width:83%"></div><div class="sk skl" style="width:55%;margin-top:18px"></div><div class="sk skl" style="width:77%"></div>';
 
   const mid=m.messageId||m.mid||'';
-  if(!mid){body.textContent=m.summary||'(No content)';return}
+  if(!mid){bd.textContent=m.summary||'(No content)';return}
   try{
     const r=await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
     const d=await r.json();const msg=d.message||d;
     if(msg.htmlBody){
       const fr=document.createElement('iframe');
       fr.style.cssText='width:100%;border:none;min-height:400px;background:#fff;border-radius:8px';
-      fr.srcdoc=msg.htmlBody;body.innerHTML='';body.appendChild(fr);
+      fr.srcdoc=msg.htmlBody;bd.innerHTML='';bd.appendChild(fr);
       fr.onload=()=>{try{fr.style.height=fr.contentDocument.body.scrollHeight+40+'px'}catch{}}
-    }else{body.textContent=msg.content||msg.body||m.summary||'(Empty)'}
-  }catch(e){body.textContent=m.summary||'Error: '+e.message}
+    }else{bd.textContent=msg.content||msg.body||m.summary||'(Empty)'}
+  }catch(e){bd.textContent=m.summary||'Error: '+e.message}
 }
 
-function closeDetail(){
-  $('detail').style.display='none';
-  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('selected'));
+function closeDet(){
+  $('det').style.display='none';
+  document.querySelectorAll('.email-row').forEach(r=>r.classList.remove('sel'));
 }
 
 loadFolder('');
