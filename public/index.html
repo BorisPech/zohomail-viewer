@@ -644,8 +644,25 @@ async function openMsg(idx, el) {
 
   document.querySelectorAll('.email-row').forEach(r => r.classList.remove('sel'));
   el.classList.add('sel');
+
+  // Mark as read: update UI immediately + call API in background
+  const wasUnread = el.classList.contains('unread');
   el.classList.remove('unread');
   $('det').style.display = 'flex';
+
+  if (wasUnread) {
+    // Update local state
+    m.status = '1';
+    // Update unread counter immediately
+    const newUnread = emails.filter(e => e.status === '0').length;
+    bumpStat('sv-u', newUnread);
+    // Call Zoho mark-read API silently in background
+    if (m.messageId || m.mid) {
+      fetch(`/api/markread?msgId=${encodeURIComponent(m.messageId||m.mid)}&folderId=${encodeURIComponent(curFolderId||m.folderId||'')}`, {
+        method: 'POST',
+      }).catch(() => {}); // silent — don't block UI on failure
+    }
+  }
 
   const from  = m.fromAddress || m.sender || '';
   const name  = snm(from);
