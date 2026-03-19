@@ -509,6 +509,11 @@ html, body {
   color: var(--accent);
 }
 
+.stat-icon.red {
+  background: var(--danger-muted);
+  color: var(--danger);
+}
+
 .stat-icon.green {
   background: var(--success-muted);
   color: var(--success);
@@ -1118,6 +1123,17 @@ html, body {
         </div>
       </div>
       <div class="stat-card">
+        <div class="stat-icon red">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="stat-unread">-</div>
+          <div class="stat-label">Unread</div>
+        </div>
+      </div>
+      <div class="stat-card">
         <div class="stat-icon green">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -1273,7 +1289,7 @@ function timeAgo(ms) {
   return Math.floor(s / 3600) + 'h ago';
 }
 
-/* ════════════════════════════════════════���══════
+/* ═══════════════════════════════════════════════
    UI HELPERS
 ═══════════════════════════════════════════════ */
 function showLoader(m) { $('loader').style.display = 'flex'; $('loader-text').textContent = m || 'Loading...' }
