@@ -144,19 +144,7 @@ export function Sidebar({
                   )}
                 >
                   <IconComponent className="h-4 w-4 shrink-0" />
-                  <span className="flex-1 truncate">{folder.name}</span>
-                  {folder.unread > 0 && (
-                    <span
-                      className={cn(
-                        "text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center",
-                        isActive
-                          ? "bg-blue-600 text-white"
-                          : "bg-blue-600 text-white"
-                      )}
-                    >
-                      {folder.unread}
-                    </span>
-                  )}
+                  <span className="truncate">{folder.name}</span>
                 </button>
               );
             })}
