@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zoho Mail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--s1:#111;--s2:#1a1a1a;--s3:#222;
+  --b1:#1f1f1f;--b2:#2a2a2a;
+  --tx:#ededed;--tx2:#a1a1aa;--tx3:#52525b;
+  --ac:#6366f1;--ac2:#818cf8;
+  --gr:#22c55e;--rd:#ef4444;--am:#f59e0b;
+  --r:6px;--r2:10px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);
+  font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── TOPBAR ── */
+.topbar{height:48px;display:flex;align-items:center;padding:0 16px;gap:10px;
+  background:var(--s1);border-bottom:1px solid var(--b1);
+  position:relative;z-index:100;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-ic{width:26px;height:26px;border-radius:6px;background:var(--ac);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:700;
+  box-shadow:0 0 0 1px rgba(99,102,241,.4),0 2px 8px rgba(99,102,241,.2)}
+.brand-name{font-size:14px;font-weight:600;letter-spacing:-.3px}
+.topbar-gap{flex:1}
+.topbar-right{display:flex;align-items:center;gap:7px}
+
+/* live indicator */
+.live-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;
+  border-radius:20px;border:1px solid rgba(34,197,94,.2);
+  background:rgba(34,197,94,.06);font-size:11px;color:var(--gr);transition:.3s}
+.live-pill.syncing{border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.07);color:var(--ac2)}
+.live-dot{width:5px;height:5px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 0 2px rgba(34,197,94,.2);animation:breathe 2.5s ease infinite}
+.live-pill.syncing .live-dot{animation:spin-dot .8s linear infinite}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin-dot{to{transform:rotate(360deg)}}
+
+/* new mail banner */
+.new-banner{
+  display:none;align-items:center;gap:7px;padding:4px 12px;
+  border-radius:20px;border:1px solid rgba(99,102,241,.35);
+  background:rgba(99,102,241,.12);font-size:12px;color:var(--ac2);
+  cursor:pointer;animation:pop .25s ease;white-space:nowrap;
+}
+.new-banner.show{display:flex}
+@keyframes pop{from{transform:scale(.88);opacity:0}to{transform:none;opacity:1}}
+
+.btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r2);
+  background:var(--s2);border:1px solid var(--b1);color:var(--tx2);
+  font-size:12px;font-weight:500;cursor:pointer;transition:.12s;white-space:nowrap;font-family:inherit}
+.btn:hover{border-color:var(--b2);color:var(--tx)}
+
+/* ── APP ── */
+.app{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 48px);overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sb{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.sb-top{padding:12px 10px 8px;flex-shrink:0}
+.sb-search{display:flex;align-items:center;gap:7px;padding:7px 10px;
+  background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);transition:.15s}
+.sb-search:focus-within{border-color:var(--ac)}
+.sb-search input{flex:1;background:transparent;border:none;outline:none;
+  font-size:12px;color:var(--tx);font-family:inherit}
+.sb-search input::placeholder{color:var(--tx3)}
+.sb-list{flex:1;overflow-y:auto;padding:8px 8px 0}
+.sb-sec{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:var(--tx3);padding:6px 6px 4px}
+.fi{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--r);
+  cursor:pointer;font-size:13px;color:var(--tx2);border:1px solid transparent;
+  margin-bottom:1px;background:transparent;width:100%;text-align:left;font-family:inherit;transition:.12s}
+.fi:hover{background:var(--s2);color:var(--tx)}
+.fi.on{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);color:var(--ac2)}
+.fi-ic{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.7}
+.fi-nm{flex:1;font-weight:500}
+.fi-ct{font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;
+  background:var(--ac);color:#fff;min-width:18px;text-align:center;transition:.3s}
+.fi-ct.z{background:var(--s3);color:var(--tx3)}
+/* badge flash when count changes */
+.fi-ct.flash{animation:badge-flash .5s ease}
+@keyframes badge-flash{0%{transform:scale(1.5)}100%{transform:scale(1)}}
+.sb-div{height:1px;background:var(--b1);margin:8px 8px}
+.sb-footer{padding:10px 12px;flex-shrink:0}
+.sb-fl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:3px}
+.sb-fv{font-size:12px;color:var(--tx2)}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;
+  background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0}
+.srch{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);
+  border:1px solid var(--b1);border-radius:var(--r2);padding:8px 12px;transition:.15s}
+.srch:focus-within{border-color:var(--ac)}
+.srch input{flex:1;background:transparent;border:none;outline:none;
+  font-size:13px;color:var(--tx);font-family:inherit}
+.srch input::placeholder{color:var(--tx3)}
+
+/* ── STATS ── */
+.stats{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
+.stat{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.stat+.stat{border-left:1px solid var(--b1)}
+.stat-ic{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.stat-v{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px;transition:.3s}
+.stat-v.bump{animation:bump .4s ease}
+@keyframes bump{0%{transform:scale(1.25);color:var(--ac2)}100%{transform:scale(1)}}
+.stat-l{font-size:11px;color:var(--tx3);margin-top:1px}
+
+/* ── COUNT BAR ── */
+.cbar{padding:7px 16px;border-bottom:1px solid var(--b1);background:var(--s1);
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.cbar-l{font-size:12px;color:var(--tx3)}
+.cbar-r{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:6px}
+.cb-bold{color:var(--tx2);font-weight:600}
+.sync-time{font-size:11px;color:var(--tx3)}
+
+/* ── EMAIL LIST ── */
+.list{flex:1;overflow-y:auto}
+.email-row{display:grid;grid-template-columns:46px 1fr 65px;
+  gap:10px;align-items:start;padding:12px 16px;
+  border-bottom:1px solid var(--b1);cursor:pointer;
+  position:relative;transition:background .1s}
+.email-row:hover{background:var(--s1)}
+.email-row.unread{background:rgba(99,102,241,.04)}
+.email-row.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ac)}
+.email-row.sel{background:var(--s2)}
+.email-row.is-new{animation:new-glow .8s ease}
+@keyframes new-glow{0%{background:rgba(99,102,241,.18)}100%{background:rgba(99,102,241,.04)}}
+.e-av{width:40px;height:40px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.e-bd{min-width:0}
+.e-fr{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.email-row:not(.unread) .e-fr{font-weight:400;color:var(--tx2)}
+.e-sj{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.email-row.unread .e-sj{color:var(--tx);font-weight:500}
+.email-row:not(.unread) .e-sj{color:var(--tx3)}
+.e-pv{font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.e-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
+.e-tm{font-size:11px;color:var(--tx3)}
+.e-ud{width:7px;height:7px;border-radius:50%;background:var(--ac)}
+
+/* empty */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:300px;padding:40px;text-align:center}
+.empty-ic{width:52px;height:52px;border-radius:14px;background:var(--s2);border:1px solid var(--b1);
+  display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px}
+.empty-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.empty-s{font-size:13px;color:var(--tx3);line-height:1.7}
+
+/* ── DETAIL ── */
+.det{position:fixed;top:48px;right:0;width:48vw;max-width:720px;
+  height:calc(100vh - 48px);background:var(--s1);border-left:1px solid var(--b2);
+  display:none;flex-direction:column;z-index:50;
+  animation:si .2s cubic-bezier(.16,1,.3,1)}
+@keyframes si{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+.det-top{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;
+  border-bottom:1px solid var(--b1);flex-shrink:0}
+.det-close{width:28px;height:28px;border-radius:var(--r);border:1px solid var(--b1);
+  background:var(--s2);color:var(--tx2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0;font-family:inherit}
+.det-close:hover{border-color:var(--rd);color:var(--rd)}
+.det-sj{font-size:15px;font-weight:600;color:var(--tx);line-height:1.35;margin-bottom:2px}
+.det-dt{font-size:11px;color:var(--tx3)}
+.det-meta{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--b1);background:var(--s2);flex-shrink:0}
+.det-av{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.det-nm{font-size:13px;font-weight:600;margin-bottom:2px}
+.det-em{font-size:11px;color:var(--tx3)}
+.det-to{font-size:11px;color:var(--tx3);margin-top:2px}
+.det-acts{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.det-act{padding:5px 12px;border-radius:var(--r);border:1px solid var(--b1);
+  background:var(--s2);color:var(--tx2);font-size:12px;font-weight:500;
+  cursor:pointer;transition:.12s;font-family:inherit}
+.det-act:hover{border-color:var(--b2);color:var(--tx)}
+.det-body{flex:1;overflow-y:auto;padding:20px}
+.det-body-txt{font-size:13px;line-height:1.85;color:var(--tx2);white-space:pre-wrap;word-break:break-word}
+
+/* ── LOADER ── */
+#ldr{position:fixed;inset:0;z-index:200;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.spin{width:34px;height:34px;border-radius:50%;border:2px solid var(--b2);
+  border-top-color:var(--ac);animation:sp .65s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.spin-t{font-size:13px;color:var(--tx2)}
+.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
+  background-size:200%;animation:shim 1.2s ease-in-out infinite;border-radius:4px}
+@keyframes shim{0%{background-position:200%}100%{background-position:-200%}}
+.skl{height:10px;margin-bottom:8px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:18px;right:18px;z-index:999;padding:11px 16px;
+  border-radius:var(--r2);background:var(--s2);border:1px solid var(--b2);
+  border-left:3px solid var(--gr);font-size:12px;color:var(--tx);
+  box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;font-family:inherit}
+#toast.err{border-left-color:var(--rd)}
+#toast.info{border-left-color:var(--ac)}
+
+/* responsive */
+@media(max-width:900px){.app{grid-template-columns:180px 1fr}}
+@media(max-width:680px){
+  .app{grid-template-columns:1fr}.sb{display:none}
+  .det{width:100vw;max-width:none}.stats{display:none}}
+</style>
+</head>
+<body>
+
+<div id="ldr"><div class="spin"></div><div class="spin-t" id="ldr-t">Loading...</div></div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-ic">M</div>
+    <span class="brand-name">Zoho Mail</span>
+  </div>
+  <div class="topbar-gap"></div>
+  <div class="topbar-right">
+    <div class="new-banner" id="new-banner" onclick="applyNewMails()">
+      <span>✦</span><span id="new-banner-txt">New messages</span>
+    </div>
+    <div class="live-pill" id="live-pill">
+      <span class="live-dot"></span>
+      <span id="live-txt">Live</span>
+    </div>
+    <button class="btn" onclick="doRefresh()">↻</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sb">
+    <div class="sb-top">
+      <div class="sb-search">
+        <span style="color:var(--tx3);font-size:13px">⌕</span>
+        <input id="sb-q" type="text" placeholder="Search..." oninput="doSearch(this.value)">
+      </div>
+    </div>
+    <div class="sb-list">
+      <div class="sb-sec">Folders</div>
+      <div id="fl"></div>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-footer">
+      <div class="sb-fl">Active folder</div>
+      <div class="sb-fv" id="cur-folder-lbl">—</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="toolbar">
+      <div class="srch">
+        <span style="color:var(--tx3);font-size:14px">⌕</span>
+        <input id="main-q" type="text" placeholder="Search sender, subject or content..." oninput="doSearch(this.value)">
+      </div>
+      <button class="btn" onclick="doRefresh()">↻ Refresh</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-ic" style="background:rgba(99,102,241,.1);color:var(--ac)">✉</div>
+        <div><div class="stat-v" id="sv-t">—</div><div class="stat-l">Total</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-ic" style="background:rgba(239,68,68,.1);color:var(--rd)">◉</div>
+        <div><div class="stat-v" id="sv-u">—</div><div class="stat-l">Unread</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-ic" style="background:rgba(34,197,94,.1);color:var(--gr)">⏱</div>
+        <div>
+          <div class="stat-v" id="sv-sync" style="font-size:12px;padding-top:3px">—</div>
+          <div class="stat-l">Last sync</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cbar">
+      <span class="cbar-l">Showing <span class="cb-bold" id="show-count">0</span> messages</span>
+      <span class="cbar-r" id="filter-info"></span>
+    </div>
+
+    <div class="list" id="list"></div>
+  </main>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="det" id="det">
+  <div class="det-top">
+    <button class="det-close" onclick="closeDet()">✕</button>
+    <div style="flex:1;min-width:0">
+      <div class="det-sj" id="d-sj">—</div>
+      <div class="det-dt" id="d-dt"></div>
+    </div>
+  </div>
+  <div class="det-meta">
+    <div class="det-av" id="d-av">?</div>
+    <div>
+      <div class="det-nm" id="d-nm"></div>
+      <div class="det-em" id="d-em"></div>
+      <div class="det-to" id="d-to"></div>
+    </div>
+  </div>
+  <div class="det-acts">
+    <button class="det-act">↩ Reply</button>
+    <button class="det-act">→ Forward</button>
+    <button class="det-act">⬇ Download</button>
+  </div>
+  <div class="det-body"><div id="d-bd" class="det-body-txt"></div></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════ */
+const API           = '/api/emails';
+const POLL_MS       = 15000;  // poll every 15 seconds
+const NOTIFY_DELAY  = 1000;   // wait 1s before browser notification (avoids spam)
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let emails        = [];
+let folders       = [];
+let curFolder     = '';
+let curFolderId   = '';
+let query         = '';
+let lastTimestamp = 0;
+let pollTimer     = null;
+let syncing       = false;
+let pendingNew    = [];    // new emails waiting to be shown
+let knownIds      = new Set(); // messageIds we already have
+
+/* ══════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════ */
+const COLS = [
+  {bg:'rgba(99,102,241,.15)',fg:'#818cf8'},{bg:'rgba(239,68,68,.15)',fg:'#f87171'},
+  {bg:'rgba(34,197,94,.15)',fg:'#4ade80'},{bg:'rgba(249,115,22,.15)',fg:'#fb923c'},
+  {bg:'rgba(234,179,8,.15)',fg:'#facc15'},{bg:'rgba(168,85,247,.15)',fg:'#c084fc'},
+  {bg:'rgba(20,184,166,.15)',fg:'#2dd4bf'},{bg:'rgba(236,72,153,.15)',fg:'#f472b6'},
+];
+const FI = {
+  inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',
+  archive:'◫',notification:'◉',newsletter:'◈',
+  templates:'◻',snoozed:'⏰',outbox:'↺',starred:'★',
+};
+const FO = ['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+const $   = id => document.getElementById(id);
+const col = s => { let h=0; for(const c of(s||''))h=(h*31+c.charCodeAt(0))%COLS.length; return COLS[h] };
+const ini = s => (s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const dh  = s => { const t=document.createElement('textarea'); t.innerHTML=s||''; return t.value };
+const snm = a => { if(!a)return''; if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,''); return a.split('@')[0] };
+
+function tS(ms) {
+  if(!ms) return '';
+  const d=new Date(+ms), n=new Date();
+  if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(n-d < 7*864e5) return d.toLocaleDateString([],{weekday:'short'});
+  return d.toLocaleDateString([],{month:'short',day:'numeric'});
+}
+function tL(ms) {
+  if(!ms) return '';
+  return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'});
+}
+function timeAgo(ms) {
+  if(!ms) return '—';
+  const s = Math.floor((Date.now()-ms)/1000);
+  if(s < 10) return 'Just now';
+  if(s < 60) return s+'s ago';
+  if(s < 3600) return Math.floor(s/60)+'m ago';
+  return Math.floor(s/3600)+'h ago';
+}
+
+/* ══════════════════════════════════════════
+   UI HELPERS
+══════════════════════════════════════════ */
+function showLdr(m) { $('ldr').style.display='flex'; $('ldr-t').textContent=m||'Loading...' }
+function hideLdr()  { $('ldr').style.display='none' }
+
+function toast(m, type='') {
+  const t=$('toast'); t.textContent=m; t.className=type; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none', 4000);
+}
+
+function setSyncing(v) {
+  syncing = v;
+  const p=$('live-pill'), txt=$('live-txt');
+  if(v) { p.className='live-pill syncing'; txt.textContent='Syncing...' }
+  else  { p.className='live-pill'; txt.textContent='Live' }
+}
+
+function bumpStat(id, val) {
+  const el=$(id);
+  const old = el.textContent;
+  el.textContent = val;
+  if(String(old) !== String(val)) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump') }
+}
+
+function updateSyncTime() {
+  if(lastTimestamp) $('sv-sync').textContent = timeAgo(lastTimestamp);
+}
+
+/* ══════════════════════════════════════════
+   INITIAL LOAD
+══════════════════════════════════════════ */
+async function loadFolder(folder='', silent=false) {
+  if(!silent) { showLdr(folder ? `Opening ${folder}...` : 'Loading mailbox...'); closeDet() }
+  try {
+    const url = folder
+      ? `${API}?folder=${encodeURIComponent(folder)}&limit=200`
+      : `${API}?limit=200`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if(d.error) throw new Error(d.error);
+
+    emails      = Array.isArray(d.emails)  ? d.emails  : [];
+    folders     = Array.isArray(d.folders) ? d.folders : [];
+    curFolder   = d.activeFolder   || folder || '';
+    curFolderId = d.activeFolderId || '';
+    lastTimestamp = d.timestamp || Date.now();
+
+    // Build known IDs set
+    knownIds = new Set(emails.map(m => m.messageId || m.mid));
+
+    // Real unread from email data
+    const unread = emails.filter(m => m.status === '0').length;
+    bumpStat('sv-t', emails.length);
+    bumpStat('sv-u', unread);
+    updateSyncTime();
+    $('cur-folder-lbl').textContent = curFolder || '—';
+
+    renderFolders();
+    if(!silent) { query=''; $('sb-q').value=''; $('main-q').value='' }
+    renderAll();
+    hideLdr();
+    startPoll();
+  } catch(e) {
+    hideLdr();
+    $('list').innerHTML = `<div class="empty">
+      <div class="empty-ic">⚠</div>
+      <div class="empty-t">Failed to load</div>
+      <div class="empty-s">${esc(e.message)}<br>Visit <code>/api/emails?debug=1</code></div>
+    </div>`;
+    toast(e.message, 'err');
+  }
+}
+
+/* ══════════════════════════════════════════
+   FAST POLL — 15s lightweight check
+══════════════════════════════════════════ */
+function startPoll() {
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(poll, POLL_MS);
+}
+
+async function poll() {
+  if(syncing) return;
+  setSyncing(true);
+  try {
+    // Use fast /counts endpoint — returns msgIds + folder unread counts
+    const url = curFolderId
+      ? `${API}?counts=1&activeId=${encodeURIComponent(curFolderId)}`
+      : `${API}?counts=1`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if(d.error) throw new Error(d.error);
+
+    lastTimestamp = d.timestamp || Date.now();
+    updateSyncTime();
+
+    // Detect new messages by comparing msgIds
+    const incoming = Array.isArray(d.msgIds) ? d.msgIds : [];
+    const brand_new = incoming.filter(item => !knownIds.has(item.id));
+
+    if(brand_new.length > 0) {
+      showNewBanner(brand_new.length);
+      notifyOS(brand_new.length);
+    }
+
+    // Update unread stat for active folder
+    bumpStat('sv-u', d.activeUnread ?? emails.filter(m=>m.status==='0').length);
+    bumpStat('sv-t', d.activeTotal  ?? emails.length);
+
+    // Update ALL folder badges from Zoho metadata
+    if(Array.isArray(d.folders)) updateFolderBadges(d.folders);
+
+    setSyncing(false);
+  } catch(e) {
+    setSyncing(false);
+    console.warn('[poll]', e.message);
+  }
+}
+
+function showNewBanner(count) {
+  pendingNew = pendingNew.concat([]); // will be filled when user clicks
+  $('new-banner-txt').textContent = `${count} new message${count>1?'s':''}`;
+  $('new-banner').classList.add('show');
+}
+function hideNewBanner() { $('new-banner').classList.remove('show'); pendingNew=[] }
+
+function applyNewMails() {
+  hideNewBanner();
+  // Full reload to get new messages
+  loadFolder(curFolder, false);
+}
+
+/* ══════════════════════════════════════════
+   BROWSER NOTIFICATION
+══════════════════════════════════════════ */
+async function askNotifPermission() {
+  if('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+}
+function notifyOS(count) {
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const n = new Notification(`${count} new email${count>1?'s':''} — Zoho Mail`, {
+    body:  `You have ${count} unread message${count>1?'s':''} in ${curFolder}`,
+    icon:  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%236366f1"/><text y="22" x="7" font-size="19" fill="white">✉</text></svg>',
+    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%236366f1"/></svg>',
+  });
+  setTimeout(() => n.close(), 6000);
+  n.onclick = () => { window.focus(); n.close() };
+}
+
+/* ══════════════════════════════════════════
+   FOLDERS
+══════════════════════════════════════════ */
+function renderFolders() {
+  const map = {};
+  folders.forEach(f => map[f.name] = f);
+  const sorted = [];
+  FO.forEach(n => { if(map[n]) sorted.push(map[n]) });
+  folders.forEach(f => { if(!FO.includes(f.name)) sorted.push(f) });
+
+  $('fl').innerHTML = sorted.map(f => {
+    const ic = FI[f.name.toLowerCase()] || '◇';
+    const on = f.name === curFolder ? 'on' : '';
+    const u  = f.unread || 0;
+    return `<button class="fi ${on}" onclick="sw('${esc(f.name)}',this)">
+      <span class="fi-ic">${ic}</span>
+      <span class="fi-nm">${esc(f.name)}</span>
+      <span class="fi-ct ${u===0?'z':''}" id="badge-${esc(f.name)}">${u}</span>
+    </button>`;
+  }).join('');
+}
+
+function updateFolderBadges(folderUpdates) {
+  folderUpdates.forEach(f => {
+    const el = $(`badge-${f.name}`);
+    if(!el) return;
+    const newVal = f.unread || 0;
+    const oldVal = parseInt(el.textContent) || 0;
+    el.textContent = newVal;
+    el.className   = `fi-ct ${newVal===0?'z':''}`;
+    // Flash badge if count went up
+    if(newVal > oldVal) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') }
+  });
+}
+
+function sw(name, el) {
+  document.querySelectorAll('.fi').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  hideNewBanner();
+  loadFolder(name);
+}
+
+/* ══════════════════════════════════════════
+   EMAIL LIST
+══════════════════════════════════════════ */
+function getFilt() {
+  if(!query) return emails;
+  const q = query.toLowerCase();
+  return emails.filter(m =>
+    dh(m.subject||'').toLowerCase().includes(q) ||
+    (m.fromAddress||m.sender||'').toLowerCase().includes(q) ||
+    (m.summary||'').toLowerCase().includes(q)
+  );
+}
+
+function renderAll(newIds = new Set()) {
+  const list  = getFilt();
+  const el    = $('list');
+  $('show-count').textContent = list.length;
+  $('filter-info').textContent = query ? `(filtered from ${emails.length})` : '';
+
+  if(!list.length) {
+    el.innerHTML = `<div class="empty">
+      <div class="empty-ic">${query?'🔍':'📭'}</div>
+      <div class="empty-t">${query?'No results':'Empty folder'}</div>
+      <div class="empty-s">${query?'Try different keywords':'No messages to display'}</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = list.map((m, i) => {
+    const from   = m.fromAddress || m.sender || '';
+    const name   = snm(from);
+    const {bg,fg}= col(from);
+    const unread = m.status === '0';
+    const subj   = dh(m.subject || '(No Subject)');
+    const isNew  = newIds.has(m.messageId || m.mid);
+    return `<div class="email-row${unread?' unread':''}${isNew?' is-new':''}" onclick="openMsg(${i},this)">
+      <div class="e-av" style="background:${bg};color:${fg}">${ini(name||from)}</div>
+      <div class="e-bd">
+        <div class="e-fr">${esc(name||from||'Unknown')}</div>
+        <div class="e-sj">${esc(subj)}</div>
+        <div class="e-pv">${esc(m.summary||'')}</div>
+      </div>
+      <div class="e-rt">
+        <span class="e-tm">${tS(m.receivedTime||m.sentDateInGMT)}</span>
+        ${unread?'<span class="e-ud"></span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function doSearch(v) {
+  query = v;
+  $('sb-q').value   = v;
+  $('main-q').value = v;
+  renderAll();
+}
+function doRefresh() { hideNewBanner(); loadFolder(curFolder) }
+
+/* ══════════════════════════════════════════
+   OPEN EMAIL
+══════════════════════════════════════════ */
+async function openMsg(idx, el) {
+  const list = getFilt();
+  const m    = list[idx];
+  if(!m) return;
+
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('sel'));
+  el.classList.add('sel');
+
+  // Mark as read: update UI immediately + call API in background
+  const wasUnread = el.classList.contains('unread');
+  el.classList.remove('unread');
+  $('det').style.display = 'flex';
+
+  if (wasUnread) {
+    // Update local state
+    m.status = '1';
+    // Update unread counter immediately
+    const newUnread = emails.filter(e => e.status === '0').length;
+    bumpStat('sv-u', newUnread);
+    // Call Zoho mark-read API silently in background
+    if (m.messageId || m.mid) {
+      fetch(`/api/markread?msgId=${encodeURIComponent(m.messageId||m.mid)}&folderId=${encodeURIComponent(curFolderId||m.folderId||'')}`, {
+        method: 'POST',
+      }).catch(() => {}); // silent — don't block UI on failure
+    }
+  }
+
+  const from  = m.fromAddress || m.sender || '';
+  const name  = snm(from);
+  const {bg,fg} = col(from);
+
+  $('d-sj').textContent = dh(m.subject || '(No Subject)');
+  $('d-dt').textContent = tL(m.receivedTime || m.sentDateInGMT);
+
+  const av = $('d-av');
+  av.textContent  = ini(name||from);
+  av.style.cssText = `background:${bg};color:${fg};width:36px;height:36px;border-radius:10px;` +
+    `display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0`;
+
+  $('d-nm').textContent = name || from;
+  $('d-em').textContent = from;
+  $('d-to').textContent = 'To: ' + dh(m.toAddress || '');
+
+  const bd = $('d-bd');
+  bd.innerHTML = `
+    <div class="sk skl" style="width:90%"></div>
+    <div class="sk skl" style="width:74%"></div>
+    <div class="sk skl" style="width:83%"></div>
+    <div class="sk skl" style="width:55%;margin-top:18px"></div>
+    <div class="sk skl" style="width:77%"></div>`;
+
+  const mid = m.messageId || m.mid || '';
+  if(!mid) { bd.textContent = m.summary || '(No content)'; return }
+
+  try {
+    const r   = await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
+    const d   = await r.json();
+    const msg = d.message || d;
+
+    if(msg.htmlBody) {
+      const fr = document.createElement('iframe');
+      fr.style.cssText = 'width:100%;border:none;min-height:400px;background:#fff;border-radius:8px';
+      fr.srcdoc = msg.htmlBody;
+      bd.innerHTML = '';
+      bd.appendChild(fr);
+      fr.onload = () => { try { fr.style.height = fr.contentDocument.body.scrollHeight + 40 + 'px' } catch {} };
+    } else {
+      bd.textContent = msg.content || msg.body || m.summary || '(Empty)';
+    }
+  } catch(e) {
+    bd.textContent = m.summary || 'Error: ' + e.message;
+  }
+}
+
+function closeDet() {
+  $('det').style.display = 'none';
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('sel'));
+}
+
+/* ══════════════════════════════════════════
+   TIMERS
+══════════════════════════════════════════ */
+// Update "X ago" every 30s
+setInterval(updateSyncTime, 30_000);
+
+// Request browser notification permission
+askNotifPermission();
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+loadFolder('');
+</script>
+</body>
+</html>
