@@ -3,555 +3,1477 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a">
 <title>Zoho Mail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,::before,::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0a0a0a;--s1:#111;--s2:#1a1a1a;--s3:#222;
-  --b1:#1f1f1f;--b2:#2a2a2a;
-  --tx:#ededed;--tx2:#a1a1aa;--tx3:#52525b;
-  --ac:#6366f1;--ac2:#818cf8;
-  --gr:#22c55e;--rd:#ef4444;--am:#f59e0b;
-  --r:6px;--r2:10px;
+
+:root {
+  /* Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #1e293b;
+  --bg-hover: #334155;
+  
+  --border-subtle: rgba(148, 163, 184, 0.1);
+  --border-default: rgba(148, 163, 184, 0.15);
+  --border-strong: rgba(148, 163, 184, 0.25);
+  
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-muted: rgba(59, 130, 246, 0.15);
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  
+  --success: #10b981;
+  --success-muted: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.15);
+  
+  /* Spacing */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px var(--accent-glow);
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);
-  font-family:'Geist',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
 
-/* ── TOPBAR ── */
-.topbar{height:48px;display:flex;align-items:center;padding:0 16px;gap:10px;
-  background:var(--s1);border-bottom:1px solid var(--b1);
-  position:relative;z-index:100;flex-shrink:0}
-.brand{display:flex;align-items:center;gap:8px}
-.brand-ic{width:26px;height:26px;border-radius:6px;background:var(--ac);
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:13px;font-weight:700;
-  box-shadow:0 0 0 1px rgba(99,102,241,.4),0 2px 8px rgba(99,102,241,.2)}
-.brand-name{font-size:14px;font-weight:600;letter-spacing:-.3px}
-.topbar-gap{flex:1}
-.topbar-right{display:flex;align-items:center;gap:7px}
-
-/* live indicator */
-.live-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;
-  border-radius:20px;border:1px solid rgba(34,197,94,.2);
-  background:rgba(34,197,94,.06);font-size:11px;color:var(--gr);transition:.3s}
-.live-pill.syncing{border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.07);color:var(--ac2)}
-.live-dot{width:5px;height:5px;border-radius:50%;background:currentColor;
-  box-shadow:0 0 0 2px rgba(34,197,94,.2);animation:breathe 2.5s ease infinite}
-.live-pill.syncing .live-dot{animation:spin-dot .8s linear infinite}
-@keyframes breathe{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes spin-dot{to{transform:rotate(360deg)}}
-
-/* new mail banner */
-.new-banner{
-  display:none;align-items:center;gap:7px;padding:4px 12px;
-  border-radius:20px;border:1px solid rgba(99,102,241,.35);
-  background:rgba(99,102,241,.12);font-size:12px;color:var(--ac2);
-  cursor:pointer;animation:pop .25s ease;white-space:nowrap;
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-.new-banner.show{display:flex}
-@keyframes pop{from{transform:scale(.88);opacity:0}to{transform:none;opacity:1}}
 
-.btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:var(--r2);
-  background:var(--s2);border:1px solid var(--b1);color:var(--tx2);
-  font-size:12px;font-weight:500;cursor:pointer;transition:.12s;white-space:nowrap;font-family:inherit}
-.btn:hover{border-color:var(--b2);color:var(--tx)}
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px }
+::-webkit-scrollbar-track { background: transparent }
+::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted) }
 
-/* ── APP ── */
-.app{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 48px);overflow:hidden}
+/* ═══════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════ */
+.header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+  z-index: 100;
+  flex-shrink: 0;
+}
 
-/* ── SIDEBAR ── */
-.sb{background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
-.sb-top{padding:12px 10px 8px;flex-shrink:0}
-.sb-search{display:flex;align-items:center;gap:7px;padding:7px 10px;
-  background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);transition:.15s}
-.sb-search:focus-within{border-color:var(--ac)}
-.sb-search input{flex:1;background:transparent;border:none;outline:none;
-  font-size:12px;color:var(--tx);font-family:inherit}
-.sb-search input::placeholder{color:var(--tx3)}
-.sb-list{flex:1;overflow-y:auto;padding:8px 8px 0}
-.sb-sec{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-  color:var(--tx3);padding:6px 6px 4px}
-.fi{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:var(--r);
-  cursor:pointer;font-size:13px;color:var(--tx2);border:1px solid transparent;
-  margin-bottom:1px;background:transparent;width:100%;text-align:left;font-family:inherit;transition:.12s}
-.fi:hover{background:var(--s2);color:var(--tx)}
-.fi.on{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.2);color:var(--ac2)}
-.fi-ic{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:.7}
-.fi-nm{flex:1;font-weight:500}
-.fi-ct{font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;
-  background:var(--ac);color:#fff;min-width:18px;text-align:center;transition:.3s}
-.fi-ct.z{background:var(--s3);color:var(--tx3)}
-/* badge flash when count changes */
-.fi-ct.flash{animation:badge-flash .5s ease}
-@keyframes badge-flash{0%{transform:scale(1.5)}100%{transform:scale(1)}}
-.sb-div{height:1px;background:var(--b1);margin:8px 8px}
-.sb-footer{padding:10px 12px;flex-shrink:0}
-.sb-fl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tx3);margin-bottom:3px}
-.sb-fv{font-size:12px;color:var(--tx2)}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-/* ── MAIN ── */
-.main{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
-.toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;
-  background:var(--s1);border-bottom:1px solid var(--b1);flex-shrink:0}
-.srch{flex:1;display:flex;align-items:center;gap:8px;background:var(--s2);
-  border:1px solid var(--b1);border-radius:var(--r2);padding:8px 12px;transition:.15s}
-.srch:focus-within{border-color:var(--ac)}
-.srch input{flex:1;background:transparent;border:none;outline:none;
-  font-size:13px;color:var(--tx);font-family:inherit}
-.srch input::placeholder{color:var(--tx3)}
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-glow);
+}
 
-/* ── STATS ── */
-.stats{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0;background:var(--s1)}
-.stat{flex:1;padding:10px 16px;display:flex;align-items:center;gap:10px}
-.stat+.stat{border-left:1px solid var(--b1)}
-.stat-ic{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.stat-v{font-size:20px;font-weight:700;line-height:1;letter-spacing:-.5px;transition:.3s}
-.stat-v.bump{animation:bump .4s ease}
-@keyframes bump{0%{transform:scale(1.25);color:var(--ac2)}100%{transform:scale(1)}}
-.stat-l{font-size:11px;color:var(--tx3);margin-top:1px}
+.logo-icon svg {
+  width: 20px;
+  height: 20px;
+  color: white;
+}
 
-/* ── COUNT BAR ── */
-.cbar{padding:7px 16px;border-bottom:1px solid var(--b1);background:var(--s1);
-  flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.cbar-l{font-size:12px;color:var(--tx3)}
-.cbar-r{font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:6px}
-.cb-bold{color:var(--tx2);font-weight:600}
-.sync-time{font-size:11px;color:var(--tx3)}
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-/* ── EMAIL LIST ── */
-.list{flex:1;overflow-y:auto}
-.email-row{display:grid;grid-template-columns:46px 1fr 65px;
-  gap:10px;align-items:start;padding:12px 16px;
-  border-bottom:1px solid var(--b1);cursor:pointer;
-  position:relative;transition:background .1s}
-.email-row:hover{background:var(--s1)}
-.email-row.unread{background:rgba(99,102,241,.04)}
-.email-row.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--ac)}
-.email-row.sel{background:var(--s2)}
-.email-row.is-new{animation:new-glow .8s ease}
-@keyframes new-glow{0%{background:rgba(99,102,241,.18)}100%{background:rgba(99,102,241,.04)}}
-.e-av{width:40px;height:40px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
-.e-bd{min-width:0}
-.e-fr{font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.email-row:not(.unread) .e-fr{font-weight:400;color:var(--tx2)}
-.e-sj{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
-.email-row.unread .e-sj{color:var(--tx);font-weight:500}
-.email-row:not(.unread) .e-sj{color:var(--tx3)}
-.e-pv{font-size:11.5px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.e-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-top:2px}
-.e-tm{font-size:11px;color:var(--tx3)}
-.e-ud{width:7px;height:7px;border-radius:50%;background:var(--ac)}
+.header-spacer { flex: 1 }
 
-/* empty */
-.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:300px;padding:40px;text-align:center}
-.empty-ic{width:52px;height:52px;border-radius:14px;background:var(--s2);border:1px solid var(--b1);
-  display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px}
-.empty-t{font-size:15px;font-weight:600;margin-bottom:6px}
-.empty-s{font-size:13px;color:var(--tx3);line-height:1.7}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-/* ── DETAIL ── */
-.det{position:fixed;top:48px;right:0;width:48vw;max-width:720px;
-  height:calc(100vh - 48px);background:var(--s1);border-left:1px solid var(--b2);
-  display:none;flex-direction:column;z-index:50;
-  animation:si .2s cubic-bezier(.16,1,.3,1)}
-@keyframes si{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
-.det-top{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;
-  border-bottom:1px solid var(--b1);flex-shrink:0}
-.det-close{width:28px;height:28px;border-radius:var(--r);border:1px solid var(--b1);
-  background:var(--s2);color:var(--tx2);font-size:14px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:.12s;flex-shrink:0;font-family:inherit}
-.det-close:hover{border-color:var(--rd);color:var(--rd)}
-.det-sj{font-size:15px;font-weight:600;color:var(--tx);line-height:1.35;margin-bottom:2px}
-.det-dt{font-size:11px;color:var(--tx3)}
-.det-meta{display:flex;align-items:center;gap:10px;padding:12px 16px;
-  border-bottom:1px solid var(--b1);background:var(--s2);flex-shrink:0}
-.det-av{width:36px;height:36px;border-radius:var(--r2);display:flex;align-items:center;
-  justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.det-nm{font-size:13px;font-weight:600;margin-bottom:2px}
-.det-em{font-size:11px;color:var(--tx3)}
-.det-to{font-size:11px;color:var(--tx3);margin-top:2px}
-.det-acts{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b1);flex-shrink:0}
-.det-act{padding:5px 12px;border-radius:var(--r);border:1px solid var(--b1);
-  background:var(--s2);color:var(--tx2);font-size:12px;font-weight:500;
-  cursor:pointer;transition:.12s;font-family:inherit}
-.det-act:hover{border-color:var(--b2);color:var(--tx)}
-.det-body{flex:1;overflow-y:auto;padding:20px}
-.det-body-txt{font-size:13px;line-height:1.85;color:var(--tx2);white-space:pre-wrap;word-break:break-word}
+/* Status Pill */
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--success-muted);
+  background: rgba(16, 185, 129, 0.08);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--success);
+  transition: all 0.3s ease;
+}
 
-/* ── LOADER ── */
-#ldr{position:fixed;inset:0;z-index:200;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-.spin{width:34px;height:34px;border-radius:50%;border:2px solid var(--b2);
-  border-top-color:var(--ac);animation:sp .65s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.spin-t{font-size:13px;color:var(--tx2)}
-.sk{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);
-  background-size:200%;animation:shim 1.2s ease-in-out infinite;border-radius:4px}
-@keyframes shim{0%{background-position:200%}100%{background-position:-200%}}
-.skl{height:10px;margin-bottom:8px}
+.status-pill.syncing {
+  border-color: var(--accent-muted);
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--accent);
+}
 
-/* ── TOAST ── */
-#toast{position:fixed;bottom:18px;right:18px;z-index:999;padding:11px 16px;
-  border-radius:var(--r2);background:var(--s2);border:1px solid var(--b2);
-  border-left:3px solid var(--gr);font-size:12px;color:var(--tx);
-  box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;font-family:inherit}
-#toast.err{border-left-color:var(--rd)}
-#toast.info{border-left-color:var(--ac)}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s ease-in-out infinite;
+}
 
-/* responsive */
-@media(max-width:900px){.app{grid-template-columns:180px 1fr}}
-@media(max-width:680px){
-  .app{grid-template-columns:1fr}.sb{display:none}
-  .det{width:100vw;max-width:none}.stats{display:none}}
+.status-pill.syncing .status-dot {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1) }
+  50% { opacity: 0.4; transform: scale(0.9) }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg) }
+}
+
+/* New Mail Banner */
+.new-banner {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--accent-muted);
+  background: var(--accent-muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  animation: slideIn 0.3s ease;
+  white-space: nowrap;
+}
+
+.new-banner.show { display: flex }
+
+.new-banner:hover {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: var(--accent);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0 }
+  to { transform: none; opacity: 1 }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
+.btn svg { width: 16px; height: 16px }
+
+/* Mobile menu toggle */
+.menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.menu-toggle svg { width: 20px; height: 20px }
+
+/* ═══════════════════════════════════════════════
+   APP LAYOUT
+═══════════════════════════════════════════════ */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════ */
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.sidebar-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.sidebar-search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+.sidebar-search svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sidebar-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.sidebar-search input::placeholder { color: var(--text-muted) }
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px 12px;
+}
+
+.sidebar-section {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 16px 8px 8px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  margin-bottom: 2px;
+}
+
+.folder-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.folder-item.active {
+  background: var(--accent-muted);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--accent);
+}
+
+.folder-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.folder-icon svg { width: 16px; height: 16px }
+
+.folder-name { flex: 1 }
+
+.folder-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-xl);
+  background: var(--accent);
+  color: white;
+  min-width: 22px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.folder-badge.zero {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.folder-badge.flash {
+  animation: badgeFlash 0.5s ease;
+}
+
+@keyframes badgeFlash {
+  0% { transform: scale(1.4) }
+  100% { transform: scale(1) }
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.sidebar-footer-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.sidebar-footer-value {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════
+   MAIN CONTENT
+═══════════════════════════════════════════════ */
+.main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  max-width: 500px;
+  transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-muted);
+}
+
+.search-box svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+.search-box input::placeholder { color: var(--text-muted) }
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+}
+
+.stat-card {
+  flex: 1;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-card + .stat-card {
+  border-left: 1px solid var(--border-subtle);
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg { width: 20px; height: 20px }
+
+.stat-icon.blue {
+  background: var(--accent-muted);
+  color: var(--accent);
+}
+
+.stat-icon.red {
+  background: var(--danger-muted);
+  color: var(--danger);
+}
+
+.stat-icon.green {
+  background: var(--success-muted);
+  color: var(--success);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  transition: all 0.3s ease;
+}
+
+.stat-value.bump {
+  animation: bump 0.4s ease;
+}
+
+@keyframes bump {
+  0% { transform: scale(1.2); color: var(--accent) }
+  100% { transform: scale(1) }
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Count Bar */
+.count-bar {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.count-left {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.count-bold {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.count-right {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════════
+   EMAIL LIST
+═══════════════════════════════════════════════ */
+.email-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.email-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 80px;
+  gap: 14px;
+  align-items: start;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.email-row:hover {
+  background: var(--bg-secondary);
+}
+
+.email-row.unread {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.email-row.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.email-row.selected {
+  background: var(--bg-tertiary);
+}
+
+.email-row.is-new {
+  animation: newGlow 0.8s ease;
+}
+
+@keyframes newGlow {
+  0% { background: rgba(59, 130, 246, 0.2) }
+  100% { background: rgba(59, 130, 246, 0.04) }
+}
+
+.email-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.email-content {
+  min-width: 0;
+}
+
+.email-from {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.email-row:not(.unread) .email-from {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.email-subject {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.email-row.unread .email-subject {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.email-row:not(.unread) .email-subject {
+  color: var(--text-muted);
+}
+
+.email-preview {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.email-time {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.email-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 350px;
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.empty-icon svg {
+  width: 28px;
+  height: 28px;
+  color: var(--text-muted);
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-description {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════════════ */
+.detail-panel {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 50vw;
+  max-width: 720px;
+  height: calc(100vh - 60px);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-default);
+  display: none;
+  flex-direction: column;
+  z-index: 50;
+  animation: slideInPanel 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes slideInPanel {
+  from { transform: translateX(20px); opacity: 0 }
+  to { transform: none; opacity: 1 }
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.detail-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.detail-close:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--danger-muted);
+}
+
+.detail-close svg { width: 16px; height: 16px }
+
+.detail-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.detail-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.detail-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.detail-sender-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.detail-sender-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.detail-recipient {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.detail-action {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail-action:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.detail-action svg { width: 14px; height: 14px }
+
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.detail-body-content {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Skeleton Loader */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%);
+  background-size: 200%;
+  animation: shimmer 1.2s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% }
+  100% { background-position: -200% }
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 10px;
+}
+
+/* ═══════════════════════════════════════════════
+   LOADER
+═══════════════════════════════════════════════ */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--bg-tertiary);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
+}
+
+.loader-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-left: 3px solid var(--success);
+  font-size: 13px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  font-family: inherit;
+}
+
+#toast.err { border-left-color: var(--danger) }
+#toast.info { border-left-color: var(--accent) }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .app { grid-template-columns: 220px 1fr }
+  .detail-panel { width: 60vw }
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: flex }
+  .logo-text { display: none }
+  
+  .app { grid-template-columns: 1fr }
+  
+  .sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 90;
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .sidebar.open { transform: translateX(0) }
+  
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    top: 60px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 80;
+    display: none;
+  }
+  
+  .sidebar-overlay.show { display: block }
+  
+  .stats-bar { display: none }
+  
+  .detail-panel {
+    width: 100vw;
+    max-width: none;
+  }
+  
+  .toolbar { padding: 12px 16px }
+  .email-row { padding: 14px 16px }
+  .search-box { max-width: none }
+}
+
+@media (max-width: 480px) {
+  .header { padding: 0 12px }
+  .header-actions .btn:not(.btn-icon) { display: none }
+  .email-row { grid-template-columns: 44px 1fr 60px; gap: 10px }
+  .email-avatar { width: 40px; height: 40px; font-size: 13px }
+  .count-bar { padding: 10px 16px }
+}
 </style>
 </head>
 <body>
 
-<div id="ldr"><div class="spin"></div><div class="spin-t" id="ldr-t">Loading...</div></div>
+<div id="loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-text" id="loader-text">Loading your mailbox...</div>
+</div>
 
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-ic">M</div>
-    <span class="brand-name">Zoho Mail</span>
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<header class="header">
+  <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  
+  <div class="logo">
+    <div class="logo-icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+    </div>
+    <span class="logo-text">Zoho Mail</span>
   </div>
-  <div class="topbar-gap"></div>
-  <div class="topbar-right">
+  
+  <div class="header-spacer"></div>
+  
+  <div class="header-actions">
     <div class="new-banner" id="new-banner" onclick="applyNewMails()">
-      <span>✦</span><span id="new-banner-txt">New messages</span>
+      <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/>
+      </svg>
+      <span id="new-banner-txt">New messages</span>
     </div>
-    <div class="live-pill" id="live-pill">
-      <span class="live-dot"></span>
-      <span id="live-txt">Live</span>
+    
+    <div class="status-pill" id="status-pill">
+      <span class="status-dot"></span>
+      <span id="status-text">Live</span>
     </div>
-    <button class="btn" onclick="doRefresh()">↻</button>
+    
+    <button class="btn btn-icon" onclick="doRefresh()" aria-label="Refresh">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+    </button>
   </div>
 </header>
 
 <div class="app">
-  <aside class="sb">
-    <div class="sb-top">
-      <div class="sb-search">
-        <span style="color:var(--tx3);font-size:13px">⌕</span>
-        <input id="sb-q" type="text" placeholder="Search..." oninput="doSearch(this.value)">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-search">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input id="sidebar-search" type="text" placeholder="Search folders..." oninput="doSearch(this.value)">
       </div>
     </div>
-    <div class="sb-list">
-      <div class="sb-sec">Folders</div>
-      <div id="fl"></div>
+    
+    <div class="sidebar-content">
+      <div class="sidebar-section">Folders</div>
+      <div id="folder-list"></div>
     </div>
-    <div class="sb-div"></div>
-    <div class="sb-footer">
-      <div class="sb-fl">Active folder</div>
-      <div class="sb-fv" id="cur-folder-lbl">—</div>
+    
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-label">Active Folder</div>
+      <div class="sidebar-footer-value" id="current-folder-label">-</div>
     </div>
   </aside>
 
   <main class="main">
     <div class="toolbar">
-      <div class="srch">
-        <span style="color:var(--tx3);font-size:14px">⌕</span>
-        <input id="main-q" type="text" placeholder="Search sender, subject or content..." oninput="doSearch(this.value)">
+      <div class="search-box">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input id="main-search" type="text" placeholder="Search emails by sender, subject, or content..." oninput="doSearch(this.value)">
       </div>
-      <button class="btn" onclick="doRefresh()">↻ Refresh</button>
+      <button class="btn" onclick="doRefresh()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refresh
+      </button>
     </div>
 
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-ic" style="background:rgba(99,102,241,.1);color:var(--ac)">✉</div>
-        <div><div class="stat-v" id="sv-t">—</div><div class="stat-l">Total</div></div>
-      </div>
-      <div class="stat">
-        <div class="stat-ic" style="background:rgba(239,68,68,.1);color:var(--rd)">◉</div>
-        <div><div class="stat-v" id="sv-u">—</div><div class="stat-l">Unread</div></div>
-      </div>
-      <div class="stat">
-        <div class="stat-ic" style="background:rgba(34,197,94,.1);color:var(--gr)">⏱</div>
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
         <div>
-          <div class="stat-v" id="sv-sync" style="font-size:12px;padding-top:3px">—</div>
-          <div class="stat-l">Last sync</div>
+          <div class="stat-value" id="stat-total">-</div>
+          <div class="stat-label">Total Emails</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="stat-unread">-</div>
+          <div class="stat-label">Unread</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="stat-sync" style="font-size: 14px">-</div>
+          <div class="stat-label">Last Sync</div>
         </div>
       </div>
     </div>
 
-    <div class="cbar">
-      <span class="cbar-l">Showing <span class="cb-bold" id="show-count">0</span> messages</span>
-      <span class="cbar-r" id="filter-info"></span>
+    <div class="count-bar">
+      <span class="count-left">Showing <span class="count-bold" id="show-count">0</span> messages</span>
+      <span class="count-right" id="filter-info"></span>
     </div>
 
-    <div class="list" id="list"></div>
+    <div class="email-list" id="email-list"></div>
   </main>
 </div>
 
-<!-- DETAIL DRAWER -->
-<div class="det" id="det">
-  <div class="det-top">
-    <button class="det-close" onclick="closeDet()">✕</button>
-    <div style="flex:1;min-width:0">
-      <div class="det-sj" id="d-sj">—</div>
-      <div class="det-dt" id="d-dt"></div>
+<!-- Detail Panel -->
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()" aria-label="Close">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    <div style="flex: 1; min-width: 0">
+      <div class="detail-title" id="detail-subject">-</div>
+      <div class="detail-date" id="detail-date"></div>
     </div>
   </div>
-  <div class="det-meta">
-    <div class="det-av" id="d-av">?</div>
+  
+  <div class="detail-meta">
+    <div class="detail-avatar" id="detail-avatar">?</div>
     <div>
-      <div class="det-nm" id="d-nm"></div>
-      <div class="det-em" id="d-em"></div>
-      <div class="det-to" id="d-to"></div>
+      <div class="detail-sender-name" id="detail-name"></div>
+      <div class="detail-sender-email" id="detail-email"></div>
+      <div class="detail-recipient" id="detail-to"></div>
     </div>
   </div>
-  <div class="det-acts">
-    <button class="det-act">↩ Reply</button>
-    <button class="det-act">→ Forward</button>
-    <button class="det-act">⬇ Download</button>
+  
+  <div class="detail-actions">
+    <button class="detail-action">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+      </svg>
+      Reply
+    </button>
+    <button class="detail-action">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+      </svg>
+      Forward
+    </button>
+    <button class="detail-action">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+      Download
+    </button>
   </div>
-  <div class="det-body"><div id="d-bd" class="det-body-txt"></div></div>
+  
+  <div class="detail-body">
+    <div id="detail-body-content" class="detail-body-content"></div>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    CONFIG
-══════════════════════════════════════════ */
-const API           = '/api/emails';
-const POLL_MS       = 15000;  // poll every 15 seconds
-const NOTIFY_DELAY  = 1000;   // wait 1s before browser notification (avoids spam)
+═══════════════════════════════════════════════ */
+const API = '/api/emails';
+const POLL_MS = 15000;
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    STATE
-══════════════════════════════════════════ */
-let emails        = [];
-let folders       = [];
-let curFolder     = '';
-let curFolderId   = '';
-let query         = '';
+═══════════════════════════════════════════════ */
+let emails = [];
+let folders = [];
+let curFolder = '';
+let curFolderId = '';
+let query = '';
 let lastTimestamp = 0;
-let pollTimer     = null;
-let syncing       = false;
-let pendingNew    = [];    // new emails waiting to be shown
-let knownIds      = new Set(); // messageIds we already have
+let pollTimer = null;
+let syncing = false;
+let pendingNew = [];
+let knownIds = new Set();
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    CONSTANTS
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 const COLS = [
-  {bg:'rgba(99,102,241,.15)',fg:'#818cf8'},{bg:'rgba(239,68,68,.15)',fg:'#f87171'},
-  {bg:'rgba(34,197,94,.15)',fg:'#4ade80'},{bg:'rgba(249,115,22,.15)',fg:'#fb923c'},
-  {bg:'rgba(234,179,8,.15)',fg:'#facc15'},{bg:'rgba(168,85,247,.15)',fg:'#c084fc'},
-  {bg:'rgba(20,184,166,.15)',fg:'#2dd4bf'},{bg:'rgba(236,72,153,.15)',fg:'#f472b6'},
+  { bg: 'rgba(59, 130, 246, 0.15)', fg: '#60a5fa' },
+  { bg: 'rgba(239, 68, 68, 0.15)', fg: '#f87171' },
+  { bg: 'rgba(16, 185, 129, 0.15)', fg: '#34d399' },
+  { bg: 'rgba(249, 115, 22, 0.15)', fg: '#fb923c' },
+  { bg: 'rgba(234, 179, 8, 0.15)', fg: '#fbbf24' },
+  { bg: 'rgba(139, 92, 246, 0.15)', fg: '#a78bfa' },
+  { bg: 'rgba(20, 184, 166, 0.15)', fg: '#2dd4bf' },
+  { bg: 'rgba(236, 72, 153, 0.15)', fg: '#f472b6' },
 ];
-const FI = {
-  inbox:'✉',sent:'↗',drafts:'✏',spam:'⚑',trash:'⊗',
-  archive:'◫',notification:'◉',newsletter:'◈',
-  templates:'◻',snoozed:'⏰',outbox:'↺',starred:'★',
-};
-const FO = ['Inbox','Sent','Drafts','Spam','Trash','Templates','Snoozed','Outbox','Notification','Newsletter','Archive'];
 
-/* ══════════════════════════════════════════
+const FOLDER_ICONS = {
+  inbox: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>',
+  sent: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>',
+  drafts: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>',
+  spam: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+  trash: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+  archive: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>',
+  notification: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>',
+  newsletter: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>',
+  templates: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>',
+  starred: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>',
+  default: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>'
+};
+
+const FOLDER_ORDER = ['Inbox', 'Sent', 'Drafts', 'Spam', 'Trash', 'Templates', 'Snoozed', 'Outbox', 'Notification', 'Newsletter', 'Archive'];
+
+/* ═══════════════════════════════════════════════
    UTILS
-══════════════════════════════════════════ */
-const $   = id => document.getElementById(id);
-const col = s => { let h=0; for(const c of(s||''))h=(h*31+c.charCodeAt(0))%COLS.length; return COLS[h] };
-const ini = s => (s||'?').split(/[\s@]+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const dh  = s => { const t=document.createElement('textarea'); t.innerHTML=s||''; return t.value };
-const snm = a => { if(!a)return''; if(a.includes('<'))return a.split('<')[0].trim().replace(/['"]/g,''); return a.split('@')[0] };
+═══════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const col = s => { let h = 0; for (const c of (s || '')) h = (h * 31 + c.charCodeAt(0)) % COLS.length; return COLS[h] };
+const ini = s => (s || '?').split(/[\s@]+/).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const dh = s => { const t = document.createElement('textarea'); t.innerHTML = s || ''; return t.value };
+const snm = a => { if (!a) return ''; if (a.includes('<')) return a.split('<')[0].trim().replace(/['"]/g, ''); return a.split('@')[0] };
 
 function tS(ms) {
-  if(!ms) return '';
-  const d=new Date(+ms), n=new Date();
-  if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if(n-d < 7*864e5) return d.toLocaleDateString([],{weekday:'short'});
-  return d.toLocaleDateString([],{month:'short',day:'numeric'});
+  if (!ms) return '';
+  const d = new Date(+ms), n = new Date();
+  if (d.toDateString() === n.toDateString()) return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (n - d < 7 * 864e5) return d.toLocaleDateString([], { weekday: 'short' });
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
+
 function tL(ms) {
-  if(!ms) return '';
-  return new Date(+ms).toLocaleString([],{dateStyle:'full',timeStyle:'short'});
+  if (!ms) return '';
+  return new Date(+ms).toLocaleString([], { dateStyle: 'full', timeStyle: 'short' });
 }
+
 function timeAgo(ms) {
-  if(!ms) return '—';
-  const s = Math.floor((Date.now()-ms)/1000);
-  if(s < 10) return 'Just now';
-  if(s < 60) return s+'s ago';
-  if(s < 3600) return Math.floor(s/60)+'m ago';
-  return Math.floor(s/3600)+'h ago';
+  if (!ms) return '-';
+  const s = Math.floor((Date.now() - ms) / 1000);
+  if (s < 10) return 'Just now';
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  return Math.floor(s / 3600) + 'h ago';
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    UI HELPERS
-══════════════════════════════════════════ */
-function showLdr(m) { $('ldr').style.display='flex'; $('ldr-t').textContent=m||'Loading...' }
-function hideLdr()  { $('ldr').style.display='none' }
+═══════════════════════════════════════════════ */
+function showLoader(m) { $('loader').style.display = 'flex'; $('loader-text').textContent = m || 'Loading...' }
+function hideLoader() { $('loader').style.display = 'none' }
 
-function toast(m, type='') {
-  const t=$('toast'); t.textContent=m; t.className=type; t.style.display='block';
-  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none', 4000);
+function toast(m, type = '') {
+  const t = $('toast');
+  t.textContent = m;
+  t.className = type;
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', 4000);
 }
 
 function setSyncing(v) {
   syncing = v;
-  const p=$('live-pill'), txt=$('live-txt');
-  if(v) { p.className='live-pill syncing'; txt.textContent='Syncing...' }
-  else  { p.className='live-pill'; txt.textContent='Live' }
+  const p = $('status-pill'), txt = $('status-text');
+  if (v) { p.className = 'status-pill syncing'; txt.textContent = 'Syncing...' }
+  else { p.className = 'status-pill'; txt.textContent = 'Live' }
 }
 
 function bumpStat(id, val) {
-  const el=$(id);
+  const el = $(id);
   const old = el.textContent;
   el.textContent = val;
-  if(String(old) !== String(val)) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump') }
+  if (String(old) !== String(val)) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump') }
 }
 
 function updateSyncTime() {
-  if(lastTimestamp) $('sv-sync').textContent = timeAgo(lastTimestamp);
+  if (lastTimestamp) $('stat-sync').textContent = timeAgo(lastTimestamp);
 }
 
-/* ══════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = $('sidebar');
+  const overlay = $('sidebar-overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+}
+
+/* ═══════════════════════════════════════════════
    INITIAL LOAD
-══════════════════════════════════════════ */
-async function loadFolder(folder='', silent=false) {
-  if(!silent) { showLdr(folder ? `Opening ${folder}...` : 'Loading mailbox...'); closeDet() }
+═══════════════════════════════════════════════ */
+async function loadFolder(folder = '', silent = false) {
+  if (!silent) { showLoader(folder ? `Opening ${folder}...` : 'Loading your mailbox...'); closeDetail() }
   try {
     const url = folder
       ? `${API}?folder=${encodeURIComponent(folder)}&limit=200`
       : `${API}?limit=200`;
     const r = await fetch(url);
     const d = await r.json();
-    if(d.error) throw new Error(d.error);
+    if (d.error) throw new Error(d.error);
 
-    emails      = Array.isArray(d.emails)  ? d.emails  : [];
-    folders     = Array.isArray(d.folders) ? d.folders : [];
-    curFolder   = d.activeFolder   || folder || '';
+    emails = Array.isArray(d.emails) ? d.emails : [];
+    folders = Array.isArray(d.folders) ? d.folders : [];
+    curFolder = d.activeFolder || folder || '';
     curFolderId = d.activeFolderId || '';
     lastTimestamp = d.timestamp || Date.now();
 
-    // Build known IDs set
     knownIds = new Set(emails.map(m => m.messageId || m.mid));
 
-    // Real unread from email data
     const unread = emails.filter(m => m.status === '0').length;
-    bumpStat('sv-t', emails.length);
-    bumpStat('sv-u', unread);
+    bumpStat('stat-total', emails.length);
+    bumpStat('stat-unread', unread);
     updateSyncTime();
-    $('cur-folder-lbl').textContent = curFolder || '—';
+    $('current-folder-label').textContent = curFolder || '-';
 
     renderFolders();
-    if(!silent) { query=''; $('sb-q').value=''; $('main-q').value='' }
+    if (!silent) { query = ''; $('sidebar-search').value = ''; $('main-search').value = '' }
     renderAll();
-    hideLdr();
+    hideLoader();
     startPoll();
-  } catch(e) {
-    hideLdr();
-    $('list').innerHTML = `<div class="empty">
-      <div class="empty-ic">⚠</div>
-      <div class="empty-t">Failed to load</div>
-      <div class="empty-s">${esc(e.message)}<br>Visit <code>/api/emails?debug=1</code></div>
+    
+    // Close sidebar on mobile after folder change
+    if (window.innerWidth <= 768) {
+      $('sidebar').classList.remove('open');
+      $('sidebar-overlay').classList.remove('show');
+    }
+  } catch (e) {
+    hideLoader();
+    $('email-list').innerHTML = `<div class="empty-state">
+      <div class="empty-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <div class="empty-title">Failed to load emails</div>
+      <div class="empty-description">${esc(e.message)}<br>Try refreshing or check your connection.</div>
     </div>`;
     toast(e.message, 'err');
   }
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    FAST POLL — 15s lightweight check
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 function startPoll() {
-  if(pollTimer) clearInterval(pollTimer);
+  if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(poll, POLL_MS);
 }
 
 async function poll() {
-  if(syncing) return;
+  if (syncing) return;
   setSyncing(true);
   try {
-    // Use fast /counts endpoint — returns msgIds + folder unread counts
     const url = curFolderId
       ? `${API}?counts=1&activeId=${encodeURIComponent(curFolderId)}`
       : `${API}?counts=1`;
     const r = await fetch(url);
     const d = await r.json();
-    if(d.error) throw new Error(d.error);
+    if (d.error) throw new Error(d.error);
 
     lastTimestamp = d.timestamp || Date.now();
     updateSyncTime();
 
-    // Detect new messages by comparing msgIds
     const incoming = Array.isArray(d.msgIds) ? d.msgIds : [];
     const brand_new = incoming.filter(item => !knownIds.has(item.id));
 
-    if(brand_new.length > 0) {
+    if (brand_new.length > 0) {
       showNewBanner(brand_new.length);
       notifyOS(brand_new.length);
     }
 
-    // Update unread stat for active folder
-    bumpStat('sv-u', d.activeUnread ?? emails.filter(m=>m.status==='0').length);
-    bumpStat('sv-t', d.activeTotal  ?? emails.length);
+    bumpStat('stat-unread', d.activeUnread ?? emails.filter(m => m.status === '0').length);
+    bumpStat('stat-total', d.activeTotal ?? emails.length);
 
-    // Update ALL folder badges from Zoho metadata
-    if(Array.isArray(d.folders)) updateFolderBadges(d.folders);
+    if (Array.isArray(d.folders)) updateFolderBadges(d.folders);
 
     setSyncing(false);
-  } catch(e) {
+  } catch (e) {
     setSyncing(false);
     console.warn('[poll]', e.message);
   }
 }
 
 function showNewBanner(count) {
-  pendingNew = pendingNew.concat([]); // will be filled when user clicks
-  $('new-banner-txt').textContent = `${count} new message${count>1?'s':''}`;
+  pendingNew = pendingNew.concat([]);
+  $('new-banner-txt').textContent = `${count} new message${count > 1 ? 's' : ''}`;
   $('new-banner').classList.add('show');
 }
-function hideNewBanner() { $('new-banner').classList.remove('show'); pendingNew=[] }
+
+function hideNewBanner() { $('new-banner').classList.remove('show'); pendingNew = [] }
 
 function applyNewMails() {
   hideNewBanner();
-  // Full reload to get new messages
   loadFolder(curFolder, false);
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    BROWSER NOTIFICATION
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 async function askNotifPermission() {
-  if('Notification' in window && Notification.permission === 'default') {
+  if ('Notification' in window && Notification.permission === 'default') {
     await Notification.requestPermission();
   }
 }
+
 function notifyOS(count) {
-  if(!('Notification' in window) || Notification.permission !== 'granted') return;
-  const n = new Notification(`${count} new email${count>1?'s':''} — Zoho Mail`, {
-    body:  `You have ${count} unread message${count>1?'s':''} in ${curFolder}`,
-    icon:  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%236366f1"/><text y="22" x="7" font-size="19" fill="white">✉</text></svg>',
-    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%236366f1"/></svg>',
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const n = new Notification(`${count} new email${count > 1 ? 's' : ''} - Zoho Mail`, {
+    body: `You have ${count} unread message${count > 1 ? 's' : ''} in ${curFolder}`,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%233b82f6"/><text y="22" x="6" font-size="16" fill="white">M</text></svg>',
   });
   setTimeout(() => n.close(), 6000);
   n.onclick = () => { window.focus(); n.close() };
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    FOLDERS
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 function renderFolders() {
   const map = {};
   folders.forEach(f => map[f.name] = f);
   const sorted = [];
-  FO.forEach(n => { if(map[n]) sorted.push(map[n]) });
-  folders.forEach(f => { if(!FO.includes(f.name)) sorted.push(f) });
+  FOLDER_ORDER.forEach(n => { if (map[n]) sorted.push(map[n]) });
+  folders.forEach(f => { if (!FOLDER_ORDER.includes(f.name)) sorted.push(f) });
 
-  $('fl').innerHTML = sorted.map(f => {
-    const ic = FI[f.name.toLowerCase()] || '◇';
-    const on = f.name === curFolder ? 'on' : '';
-    const u  = f.unread || 0;
-    return `<button class="fi ${on}" onclick="sw('${esc(f.name)}',this)">
-      <span class="fi-ic">${ic}</span>
-      <span class="fi-nm">${esc(f.name)}</span>
-      <span class="fi-ct ${u===0?'z':''}" id="badge-${esc(f.name)}">${u}</span>
+  $('folder-list').innerHTML = sorted.map(f => {
+    const icon = FOLDER_ICONS[f.name.toLowerCase()] || FOLDER_ICONS.default;
+    const active = f.name === curFolder ? 'active' : '';
+    const u = f.unread || 0;
+    return `<button class="folder-item ${active}" onclick="switchFolder('${esc(f.name)}', this)">
+      <span class="folder-icon">${icon}</span>
+      <span class="folder-name">${esc(f.name)}</span>
+      <span class="folder-badge ${u === 0 ? 'zero' : ''}" id="badge-${esc(f.name)}">${u}</span>
     </button>`;
   }).join('');
 }
@@ -559,68 +1481,74 @@ function renderFolders() {
 function updateFolderBadges(folderUpdates) {
   folderUpdates.forEach(f => {
     const el = $(`badge-${f.name}`);
-    if(!el) return;
+    if (!el) return;
     const newVal = f.unread || 0;
     const oldVal = parseInt(el.textContent) || 0;
     el.textContent = newVal;
-    el.className   = `fi-ct ${newVal===0?'z':''}`;
-    // Flash badge if count went up
-    if(newVal > oldVal) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') }
+    el.className = `folder-badge ${newVal === 0 ? 'zero' : ''}`;
+    if (newVal > oldVal) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash') }
   });
 }
 
-function sw(name, el) {
-  document.querySelectorAll('.fi').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
+function switchFolder(name, el) {
+  document.querySelectorAll('.folder-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
   hideNewBanner();
   loadFolder(name);
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    EMAIL LIST
-══════════════════════════════════════════ */
-function getFilt() {
-  if(!query) return emails;
+═══════════════════════════════════════════════ */
+function getFiltered() {
+  if (!query) return emails;
   const q = query.toLowerCase();
   return emails.filter(m =>
-    dh(m.subject||'').toLowerCase().includes(q) ||
-    (m.fromAddress||m.sender||'').toLowerCase().includes(q) ||
-    (m.summary||'').toLowerCase().includes(q)
+    dh(m.subject || '').toLowerCase().includes(q) ||
+    (m.fromAddress || m.sender || '').toLowerCase().includes(q) ||
+    (m.summary || '').toLowerCase().includes(q)
   );
 }
 
 function renderAll(newIds = new Set()) {
-  const list  = getFilt();
-  const el    = $('list');
+  const list = getFiltered();
+  const el = $('email-list');
   $('show-count').textContent = list.length;
   $('filter-info').textContent = query ? `(filtered from ${emails.length})` : '';
 
-  if(!list.length) {
-    el.innerHTML = `<div class="empty">
-      <div class="empty-ic">${query?'🔍':'📭'}</div>
-      <div class="empty-t">${query?'No results':'Empty folder'}</div>
-      <div class="empty-s">${query?'Try different keywords':'No messages to display'}</div>
+  if (!list.length) {
+    const isSearch = query;
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${isSearch 
+            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>'}
+        </svg>
+      </div>
+      <div class="empty-title">${isSearch ? 'No results found' : 'Empty folder'}</div>
+      <div class="empty-description">${isSearch ? 'Try different search terms' : 'No messages in this folder'}</div>
     </div>`;
     return;
   }
 
   el.innerHTML = list.map((m, i) => {
-    const from   = m.fromAddress || m.sender || '';
-    const name   = snm(from);
-    const {bg,fg}= col(from);
+    const from = m.fromAddress || m.sender || '';
+    const name = snm(from);
+    const { bg, fg } = col(from);
     const unread = m.status === '0';
-    const subj   = dh(m.subject || '(No Subject)');
-    const isNew  = newIds.has(m.messageId || m.mid);
-    return `<div class="email-row${unread?' unread':''}${isNew?' is-new':''}" onclick="openMsg(${i},this)">
-      <div class="e-av" style="background:${bg};color:${fg}">${ini(name||from)}</div>
-      <div class="e-bd">
-        <div class="e-fr">${esc(name||from||'Unknown')}</div>
-        <div class="e-sj">${esc(subj)}</div>
-        <div class="e-pv">${esc(m.summary||'')}</div>
+    const subj = dh(m.subject || '(No Subject)');
+    const isNew = newIds.has(m.messageId || m.mid);
+    return `<div class="email-row${unread ? ' unread' : ''}${isNew ? ' is-new' : ''}" onclick="openMsg(${i}, this)">
+      <div class="email-avatar" style="background: ${bg}; color: ${fg}">${ini(name || from)}</div>
+      <div class="email-content">
+        <div class="email-from">${esc(name || from || 'Unknown')}</div>
+        <div class="email-subject">${esc(subj)}</div>
+        <div class="email-preview">${esc(m.summary || '')}</div>
       </div>
-      <div class="e-rt">
-        <span class="e-tm">${tS(m.receivedTime||m.sentDateInGMT)}</span>
-        ${unread?'<span class="e-ud"></span>':''}
+      <div class="email-meta">
+        <span class="email-time">${tS(m.receivedTime || m.sentDateInGMT)}</span>
+        ${unread ? '<span class="email-unread-dot"></span>' : ''}
       </div>
     </div>`;
   }).join('');
@@ -628,77 +1556,73 @@ function renderAll(newIds = new Set()) {
 
 function doSearch(v) {
   query = v;
-  $('sb-q').value   = v;
-  $('main-q').value = v;
+  $('sidebar-search').value = v;
+  $('main-search').value = v;
   renderAll();
 }
+
 function doRefresh() { hideNewBanner(); loadFolder(curFolder) }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    OPEN EMAIL
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 async function openMsg(idx, el) {
-  const list = getFilt();
-  const m    = list[idx];
-  if(!m) return;
+  const list = getFiltered();
+  const m = list[idx];
+  if (!m) return;
 
-  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('sel'));
-  el.classList.add('sel');
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
 
-  // Mark as read: update UI immediately + call API in background
   const wasUnread = el.classList.contains('unread');
   el.classList.remove('unread');
-  $('det').style.display = 'flex';
+  $('detail-panel').style.display = 'flex';
 
   if (wasUnread) {
-    // Update local state
     m.status = '1';
-    // Update unread counter immediately
     const newUnread = emails.filter(e => e.status === '0').length;
-    bumpStat('sv-u', newUnread);
-    // Call Zoho mark-read API silently in background
+    bumpStat('stat-unread', newUnread);
     if (m.messageId || m.mid) {
-      fetch(`/api/markread?msgId=${encodeURIComponent(m.messageId||m.mid)}&folderId=${encodeURIComponent(curFolderId||m.folderId||'')}`, {
+      fetch(`/api/markread?msgId=${encodeURIComponent(m.messageId || m.mid)}&folderId=${encodeURIComponent(curFolderId || m.folderId || '')}`, {
         method: 'POST',
-      }).catch(() => {}); // silent — don't block UI on failure
+      }).catch(() => {});
     }
   }
 
-  const from  = m.fromAddress || m.sender || '';
-  const name  = snm(from);
-  const {bg,fg} = col(from);
+  const from = m.fromAddress || m.sender || '';
+  const name = snm(from);
+  const { bg, fg } = col(from);
 
-  $('d-sj').textContent = dh(m.subject || '(No Subject)');
-  $('d-dt').textContent = tL(m.receivedTime || m.sentDateInGMT);
+  $('detail-subject').textContent = dh(m.subject || '(No Subject)');
+  $('detail-date').textContent = tL(m.receivedTime || m.sentDateInGMT);
 
-  const av = $('d-av');
-  av.textContent  = ini(name||from);
-  av.style.cssText = `background:${bg};color:${fg};width:36px;height:36px;border-radius:10px;` +
-    `display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0`;
+  const av = $('detail-avatar');
+  av.textContent = ini(name || from);
+  av.style.cssText = `background: ${bg}; color: ${fg}; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0`;
 
-  $('d-nm').textContent = name || from;
-  $('d-em').textContent = from;
-  $('d-to').textContent = 'To: ' + dh(m.toAddress || '');
+  $('detail-name').textContent = name || from;
+  $('detail-email').textContent = from;
+  $('detail-to').textContent = 'To: ' + dh(m.toAddress || '');
 
-  const bd = $('d-bd');
+  const bd = $('detail-body-content');
   bd.innerHTML = `
-    <div class="sk skl" style="width:90%"></div>
-    <div class="sk skl" style="width:74%"></div>
-    <div class="sk skl" style="width:83%"></div>
-    <div class="sk skl" style="width:55%;margin-top:18px"></div>
-    <div class="sk skl" style="width:77%"></div>`;
+    <div class="skeleton skeleton-line" style="width: 90%"></div>
+    <div class="skeleton skeleton-line" style="width: 74%"></div>
+    <div class="skeleton skeleton-line" style="width: 83%"></div>
+    <div class="skeleton skeleton-line" style="width: 55%; margin-top: 18px"></div>
+    <div class="skeleton skeleton-line" style="width: 77%"></div>`;
 
   const mid = m.messageId || m.mid || '';
-  if(!mid) { bd.textContent = m.summary || '(No content)'; return }
+  if (!mid) { bd.textContent = m.summary || '(No content)'; return }
 
   try {
-    const r   = await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
-    const d   = await r.json();
+    const r = await fetch(`${API}?msgId=${encodeURIComponent(mid)}`);
+    const d = await r.json();
     const msg = d.message || d;
 
-    if(msg.htmlBody) {
+    if (msg.htmlBody) {
       const fr = document.createElement('iframe');
-      fr.style.cssText = 'width:100%;border:none;min-height:400px;background:#fff;border-radius:8px';
+      fr.style.cssText = 'width: 100%; border: none; min-height: 400px; background: #fff; border-radius: 8px';
       fr.srcdoc = msg.htmlBody;
       bd.innerHTML = '';
       bd.appendChild(fr);
@@ -706,28 +1630,26 @@ async function openMsg(idx, el) {
     } else {
       bd.textContent = msg.content || msg.body || m.summary || '(Empty)';
     }
-  } catch(e) {
+  } catch (e) {
     bd.textContent = m.summary || 'Error: ' + e.message;
   }
 }
 
-function closeDet() {
-  $('det').style.display = 'none';
-  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('sel'));
+function closeDetail() {
+  $('detail-panel').style.display = 'none';
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
 }
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    TIMERS
-══════════════════════════════════════════ */
-// Update "X ago" every 30s
-setInterval(updateSyncTime, 30_000);
+═══════════════════════════════════════════════ */
+setInterval(updateSyncTime, 30000);
 
-// Request browser notification permission
 askNotifPermission();
 
-/* ══════════════════════════════════════════
+/* ═══════════════════════════════════════════════
    INIT
-══════════════════════════════════════════ */
+═══════════════════════════════════════════════ */
 loadFolder('');
 </script>
 </body>
