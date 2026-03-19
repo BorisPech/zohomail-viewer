@@ -1289,7 +1289,7 @@ function timeAgo(ms) {
   return Math.floor(s / 3600) + 'h ago';
 }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════���══════
    UI HELPERS
 ═══════════════════════════════════════════════ */
 function showLoader(m) { $('loader').style.display = 'flex'; $('loader-text').textContent = m || 'Loading...' }
@@ -1469,11 +1469,12 @@ function renderFolders() {
   $('folder-list').innerHTML = sorted.map(f => {
     const icon = FOLDER_ICONS[f.name.toLowerCase()] || FOLDER_ICONS.default;
     const active = f.name === curFolder ? 'active' : '';
-    const u = f.unread || 0;
+    // Show total count (matches Zoho app behavior), fall back to unread if no total
+    const count = f.total || f.unread || 0;
     return `<button class="folder-item ${active}" onclick="switchFolder('${esc(f.name)}', this)">
       <span class="folder-icon">${icon}</span>
       <span class="folder-name">${esc(f.name)}</span>
-      <span class="folder-badge ${u === 0 ? 'zero' : ''}" id="badge-${esc(f.name)}">${u}</span>
+      <span class="folder-badge ${count === 0 ? 'zero' : ''}" id="badge-${esc(f.name)}">${count}</span>
     </button>`;
   }).join('');
 }
@@ -1482,7 +1483,8 @@ function updateFolderBadges(folderUpdates) {
   folderUpdates.forEach(f => {
     const el = $(`badge-${f.name}`);
     if (!el) return;
-    const newVal = f.unread || 0;
+    // Show total count (matches Zoho app behavior), fall back to unread if no total
+    const newVal = f.total || f.unread || 0;
     const oldVal = parseInt(el.textContent) || 0;
     el.textContent = newVal;
     el.className = `folder-badge ${newVal === 0 ? 'zero' : ''}`;
