@@ -1,8 +1,12 @@
 /**
- * ZohoMail Viewer API — v10
+ * ZohoMail Viewer API — v11
  *
  * CONFIRMED WORKING URL:
  *   /messages/view?folderId={id}  ← only format that works for this account
+ *
+ * Changes in v11:
+ *   - Added security filtering for Zoho account emails (password reset, OTP, etc.)
+ *   - Restricted emails show warning instead of sensitive content
  *
  * Changes in v10:
  *   - /api/emails/counts endpoint → returns unread across ALL folders fast
@@ -12,6 +16,69 @@
 const CLIENT_ID     = process.env.ZOHO_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOHO_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.ZOHO_REFRESH_TOKEN;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECURITY FILTER: Detect and restrict Zoho account security emails
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ZOHO_SECURITY_DOMAINS = ['zohoaccounts.com', 'zohomail.com', 'zoho.com', 'zohocorp.com'];
+const SECURITY_KEYWORDS = [
+  'reset password', 'password reset', 'otp', 'one-time password', 'one time password',
+  'verification code', 'verify your', 'account recovery', 'security alert', 'change password',
+  'confirm your email', 'verify email', 'security code', 'login attempt', 'sign-in attempt',
+  'two-factor', '2fa', 'authentication code',
+];
+const RESTRICTED_MESSAGE = 'This message contains sensitive account security information and cannot be displayed here.';
+
+function extractDomain(addr) {
+  if (!addr) return '';
+  const match = addr.match(/<([^>]+)>/) || addr.match(/([^\s<>]+@[^\s<>]+)/);
+  const email = match ? match[1] : addr;
+  const parts = email.split('@');
+  return parts.length > 1 ? parts[1].toLowerCase().trim() : '';
+}
+
+function isZohoDomain(addr) {
+  const domain = extractDomain(addr);
+  return ZOHO_SECURITY_DOMAINS.some(z => domain === z || domain.endsWith('.' + z));
+}
+
+function containsSecurityKeywords(subject, body) {
+  const text = `${subject || ''} ${body || ''}`.toLowerCase();
+  return SECURITY_KEYWORDS.some(kw => text.includes(kw));
+}
+
+function isRestrictedSecurityEmail(email) {
+  const sender = email.sender || email.fromAddress || '';
+  if (!isZohoDomain(sender)) return false;
+  const body = email.htmlContent || email.textContent || email.content || email.summary || '';
+  return containsSecurityKeywords(email.subject || '', body);
+}
+
+function redactEmailForList(email) {
+  return { ...email, summary: RESTRICTED_MESSAGE, restricted_security_email: true };
+}
+
+function redactEmailForDetail(email) {
+  return {
+    ...email,
+    content: RESTRICTED_MESSAGE,
+    htmlContent: '',
+    textContent: RESTRICTED_MESSAGE,
+    summary: RESTRICTED_MESSAGE,
+    restricted_security_email: true,
+  };
+}
+
+function processEmailList(emails) {
+  return emails.map(e => isRestrictedSecurityEmail(e) ? redactEmailForList(e) : e);
+}
+
+function processMessageDetail(msg) {
+  return isRestrictedSecurityEmail(msg) ? redactEmailForDetail(msg) : msg;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 let _token = null, _expiry = 0;
 
@@ -71,7 +138,10 @@ export default async function handler(req, res) {
       const d = await zFetch(
         `https://mail.zoho.com/api/accounts/${accountId}/messages/${req.query.msgId}`, token
       );
-      return res.status(200).json({ message: d?.data || d, accountEmail });
+      // Apply security filter to individual message
+      const rawMessage = d?.data || d;
+      const filteredMessage = processMessageDetail(rawMessage);
+      return res.status(200).json({ message: filteredMessage, accountEmail });
     }
 
     // ── GET ALL FOLDER COUNTS (fast poll endpoint) ──
@@ -161,7 +231,9 @@ export default async function handler(req, res) {
       `https://mail.zoho.com/api/accounts/${accountId}/messages/view?folderId=${target.id}&limit=200&start=${start}&sortorder=false`,
       token
     );
-    const emails  = Array.isArray(md?.data) ? md.data : [];
+    const rawEmails = Array.isArray(md?.data) ? md.data : [];
+    // Apply security filter to email list
+    const emails = processEmailList(rawEmails);
     const realUnread = emails.filter(m => m.status === '0').length;
 
     // Update folder unread from real data

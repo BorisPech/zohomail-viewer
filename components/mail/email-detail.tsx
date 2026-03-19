@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { X, Reply, Forward, Download, Loader2 } from "lucide-react";
+import { X, Reply, Forward, Download, Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useMessage, markAsRead } from "@/lib/email-store";
@@ -54,10 +54,13 @@ export function EmailDetail({
   const date = formatFullDate(getEmailTime(email));
   const toAddress = email.toAddress || "";
 
-  // Get body content
+  // Check if this is a restricted security email
   const fullMessage = data?.message;
+  const isRestricted = email.restricted_security_email || fullMessage?.restricted_security_email;
+
+  // Get body content (only if not restricted)
   let bodyContent = "";
-  if (fullMessage) {
+  if (!isRestricted && fullMessage) {
     if (fullMessage.htmlContent) {
       bodyContent = fullMessage.htmlContent;
     } else if (fullMessage.textContent) {
@@ -66,7 +69,7 @@ export function EmailDetail({
       bodyContent = fullMessage.content;
     }
   }
-  if (!bodyContent) {
+  if (!bodyContent && !isRestricted) {
     bodyContent = email.summary || "";
   }
 
@@ -117,17 +120,32 @@ export function EmailDetail({
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Actions - disabled for restricted emails */}
       <div className="flex gap-2 p-3 border-b border-border shrink-0">
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-1.5"
+          disabled={isRestricted}
+        >
           <Reply className="h-3.5 w-3.5" />
           Reply
         </Button>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-1.5"
+          disabled={isRestricted}
+        >
           <Forward className="h-3.5 w-3.5" />
           Forward
         </Button>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-1.5"
+          disabled={isRestricted}
+        >
           <Download className="h-3.5 w-3.5" />
           Download
         </Button>
@@ -138,6 +156,25 @@ export function EmailDetail({
         {isLoading ? (
           <div className="flex items-center justify-center h-32">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : isRestricted ? (
+          /* Security Warning UI for restricted emails */
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-5">
+              <ShieldAlert className="h-8 w-8 text-amber-500" />
+            </div>
+            <h3 className="text-base font-semibold mb-2 text-foreground">
+              Security Content Restricted
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+              This message contains sensitive account security information 
+              (such as password reset codes or verification links) and cannot 
+              be displayed in this viewer for your protection.
+            </p>
+            <p className="text-xs text-muted-foreground mt-4 max-w-sm">
+              Please access this email directly through the official Zoho Mail 
+              app or website to view its contents.
+            </p>
           </div>
         ) : (
           <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">

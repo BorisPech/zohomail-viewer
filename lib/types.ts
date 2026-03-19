@@ -12,6 +12,8 @@ export interface Email {
   content?: string;
   htmlContent?: string;
   textContent?: string;
+  // Security flag: true if email contains sensitive Zoho account security info
+  restricted_security_email?: boolean;
 }
 
 export interface Folder {

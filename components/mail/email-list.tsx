@@ -1,6 +1,6 @@
 "use client";
 
-import { MailX } from "lucide-react";
+import { MailX, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Email } from "@/lib/types";
 import {
@@ -68,6 +68,7 @@ export function EmailList({
         const time = formatTime(getEmailTime(email));
         const unread = isUnread(email);
         const selected = id === selectedId;
+        const isRestricted = email.restricted_security_email === true;
         const summary = stripHtml(email.summary || "");
 
         return (
@@ -123,9 +124,14 @@ export function EmailList({
             {/* Meta */}
             <div className="flex flex-col items-end gap-2 pt-0.5">
               <span className="text-xs text-muted-foreground">{time}</span>
-              {unread && (
-                <span className="w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
-              )}
+              <div className="flex items-center gap-1.5">
+                {isRestricted && (
+                  <ShieldAlert className="h-3.5 w-3.5 text-amber-500" aria-label="Security restricted email" />
+                )}
+                {unread && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shadow-lg shadow-blue-500/50" />
+                )}
+              </div>
             </div>
           </button>
         );
