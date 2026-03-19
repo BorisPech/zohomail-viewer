@@ -173,7 +173,6 @@ export default async function handler(req, res) {
           id:     f.folderId || f.id || '',
           name:   f.folderName || f.name || '',
           unread: parseInt(f.unreadCount || 0), // from Zoho metadata
-          total:  parseInt(f.messageCount || 0), // total message count
         })),
         activeUnread,
         activeTotal,
