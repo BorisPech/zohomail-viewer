@@ -1,7 +1,6 @@
 "use client";
 
-import { Mail, Inbox, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Mail, Clock } from "lucide-react";
 
 interface StatsBarProps {
   total: number;
@@ -28,15 +27,6 @@ export function StatsBar({ total, unread, lastSync }: StatsBarProps) {
         <div>
           <div className="text-2xl font-bold tracking-tight">{total}</div>
           <div className="text-xs text-muted-foreground">Total Emails</div>
-        </div>
-      </div>
-      <div className="flex-1 flex items-center gap-3 px-5 py-3 border-r border-border">
-        <div className="w-10 h-10 rounded-lg bg-red-500/15 flex items-center justify-center">
-          <Inbox className="h-5 w-5 text-red-400" />
-        </div>
-        <div>
-          <div className="text-2xl font-bold tracking-tight">{unread}</div>
-          <div className="text-xs text-muted-foreground">Unread</div>
         </div>
       </div>
       <div className="flex-1 flex items-center gap-3 px-5 py-3">
